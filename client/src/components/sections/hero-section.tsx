@@ -14,12 +14,16 @@ export function HeroSection() {
             Helping small and mid-sized businesses leverage the power of artificial intelligence to unlock efficiency, innovation, and sustainable growth.
           </p>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <GradientButton>
-              Schedule a Free Consultation
-            </GradientButton>
-            <GradientButton variant="outline">
-              Explore Services
-            </GradientButton>
+            <a href="#contact">
+              <GradientButton>
+                Schedule a Free Consultation
+              </GradientButton>
+            </a>
+            <a href="#services">
+              <GradientButton variant="outline">
+                Explore Services
+              </GradientButton>
+            </a>
           </div>
           <div className="mt-8 flex items-center space-x-4">
             <span className="text-sm text-gray-500">Trusted by:</span>

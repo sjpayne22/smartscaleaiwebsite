@@ -57,9 +57,11 @@ export function ServicesSection() {
         </div>
         
         <div className="mt-12 text-center">
-          <GradientButton>
-            Discuss Your AI Requirements
-          </GradientButton>
+          <a href="#contact">
+            <GradientButton>
+              Discuss Your AI Requirements
+            </GradientButton>
+          </a>
         </div>
       </div>
     </section>

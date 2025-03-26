@@ -31,7 +31,7 @@ const colorClasses = {
   }
 };
 
-export function ServiceCard({ title, description, icon: Icon, color, href = "#services" }: ServiceCardProps) {
+export function ServiceCard({ title, description, icon: Icon, color, href = "#contact" }: ServiceCardProps) {
   const { border, iconBg, iconColor, linkColor } = colorClasses[color];
 
   return (

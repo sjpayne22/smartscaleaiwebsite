@@ -22,7 +22,7 @@ export function InsightCard({
   category, 
   image, 
   color, 
-  href = "#" 
+  href = "#contact" 
 }: InsightCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
