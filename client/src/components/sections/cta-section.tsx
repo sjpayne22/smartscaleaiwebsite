@@ -10,12 +10,16 @@ export function CTASection() {
             Schedule a free 30-minute consultation to discuss how SmartScale AI can help you achieve your business goals.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <GradientButton>
-              Schedule Consultation
-            </GradientButton>
-            <GradientButton variant="outline">
-              Learn More About Our Services
-            </GradientButton>
+            <a href="#contact">
+              <GradientButton>
+                Schedule Consultation
+              </GradientButton>
+            </a>
+            <a href="#services">
+              <GradientButton variant="outline">
+                Learn More About Our Services
+              </GradientButton>
+            </a>
           </div>
         </div>
       </div>

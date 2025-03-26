@@ -48,9 +48,11 @@ export function AboutSection() {
               ))}
             </div>
             
-            <GradientButton>
-              Schedule a Discovery Call
-            </GradientButton>
+            <a href="#contact">
+              <GradientButton>
+                Schedule a Discovery Call
+              </GradientButton>
+            </a>
           </div>
           <div>
             <div className="relative">

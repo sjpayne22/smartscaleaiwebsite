@@ -48,9 +48,11 @@ export function InsightsSection() {
         </div>
         
         <div className="mt-10 text-center">
-          <GradientButton variant="outline">
-            View All Insights
-          </GradientButton>
+          <a href="#contact">
+            <GradientButton variant="outline">
+              View All Insights
+            </GradientButton>
+          </a>
         </div>
       </div>
     </section>
