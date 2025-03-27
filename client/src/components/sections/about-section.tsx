@@ -1,5 +1,6 @@
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Check } from "lucide-react";
+import stanleyPaynePhoto from "@assets/StanleyPayneYounger.jpg";
 
 export function AboutSection() {
   const valueProps = [
@@ -65,7 +66,13 @@ export function AboutSection() {
               
               <div className="absolute bottom-4 right-4 bg-white p-4 rounded-lg shadow-md max-w-xs">
                 <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-12 h-12 rounded-full bg-gray-100"></div>
+                  <div className="w-12 h-12 rounded-full overflow-hidden">
+                    <img 
+                      src={stanleyPaynePhoto} 
+                      alt="Stanley Payne" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div>
                     <h4 className="font-semibold">Stanley Payne</h4>
                     <p className="text-sm text-gray-500">Founder & CEO</p>
