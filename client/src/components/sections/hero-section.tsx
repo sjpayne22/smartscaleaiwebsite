@@ -1,5 +1,6 @@
 import { GradientButton } from "@/components/ui/gradient-button";
 import { GradientText } from "@/components/ui/gradient-text";
+import { SiGoogle, SiAmazon, SiOracle } from "react-icons/si";
 
 export function HeroSection() {
   return (
@@ -25,12 +26,18 @@ export function HeroSection() {
               </GradientButton>
             </a>
           </div>
-          <div className="mt-8 flex items-center space-x-4">
-            <span className="text-sm text-gray-500">Trusted by:</span>
-            <div className="flex space-x-4">
-              <div className="w-16 h-8 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500">Logo 1</div>
-              <div className="w-16 h-8 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500">Logo 2</div>
-              <div className="w-16 h-8 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500">Logo 3</div>
+          <div className="mt-10 pt-6 border-t border-gray-200">
+            <span className="text-sm font-medium text-gray-600 mb-3 block">Trusted by industry leaders:</span>
+            <div className="flex space-x-8 items-center">
+              <div className="flex items-center justify-center group transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <SiGoogle className="h-8 w-auto text-[#4285F4] opacity-80 group-hover:opacity-100 group-hover:drop-shadow-md" />
+              </div>
+              <div className="flex items-center justify-center group transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <SiAmazon className="h-8 w-auto text-[#FF9900] opacity-80 group-hover:opacity-100 group-hover:drop-shadow-md" />
+              </div>
+              <div className="flex items-center justify-center group transition-all duration-300 hover:scale-110 hover:-translate-y-1">
+                <SiOracle className="h-8 w-auto text-[#F80000] opacity-80 group-hover:opacity-100 group-hover:drop-shadow-md" />
+              </div>
             </div>
           </div>
         </div>
