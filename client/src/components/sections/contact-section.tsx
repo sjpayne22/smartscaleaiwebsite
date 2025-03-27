@@ -35,8 +35,25 @@ export function ContactSection() {
 
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormValues) => {
-      const response = await apiRequest("POST", "/api/contact", data);
-      return response.json();
+      try {
+        console.log("Submitting form data:", data);
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include"
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`${response.status}: ${errorText || response.statusText}`);
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.error("Contact form submission error:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -45,7 +62,8 @@ export function ContactSection() {
       });
       reset();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Error in contact mutation:", error);
       toast({
         title: "Error sending message",
         description: error.message || "Please try again later.",
