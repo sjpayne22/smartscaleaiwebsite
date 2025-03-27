@@ -6,19 +6,22 @@ export function TestimonialsSection() {
       quote: "SmartScale AI transformed our customer service with their chatbot solution. We've seen a 40% reduction in response time and significantly improved customer satisfaction scores.",
       author: "Sarah Johnson",
       position: "CEO, RetailConnect",
-      rating: 5
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=400"
     },
     {
       quote: "The predictive analytics solution implemented by SmartScale AI has revolutionized our inventory management. We've reduced waste by 23% and improved our order fulfillment rate to 98%.",
       author: "Michael Rodriguez",
       position: "Operations Director, FreshGoods",
-      rating: 5
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=400"
     },
     {
       quote: "The AI workshops conducted by SmartScale were eye-opening for our team. We now have a clear AI strategy and the knowledge to implement it. The ROI has been exceptional.",
       author: "Lisa Chen",
       position: "CFO, TechWave Solutions",
-      rating: 5
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=400"
     }
   ];
 
@@ -38,6 +41,7 @@ export function TestimonialsSection() {
               author={testimonial.author}
               position={testimonial.position}
               rating={testimonial.rating}
+              image={testimonial.image}
             />
           ))}
         </div>
