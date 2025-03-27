@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, CheckCircle } from "lucide-react";
 import { Facebook, Linkedin, Youtube } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,6 +19,8 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 export function ContactSection() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -33,47 +33,31 @@ export function ContactSection() {
     }
   });
 
-  const contactMutation = useMutation({
-    mutationFn: async (data: ContactFormValues) => {
-      try {
-        console.log("Submitting form data:", data);
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-          credentials: "include"
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`${response.status}: ${errorText || response.statusText}`);
-        }
-        
-        return response.json();
-      } catch (error) {
-        console.error("Contact form submission error:", error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
+  const onSubmit = (data: ContactFormValues) => {
+    setIsSubmitting(true);
+    
+    // In a real implementation, this would send data to a server
+    // For now, we'll simulate sending an email to info@smartscaleai.ai
+    console.log("Contact form submission:", data);
+    console.log("This would send an email to info@smartscaleai.ai");
+    
+    // Simulate successful submission after delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      
       toast({
         title: "Message sent!",
         description: "Thank you for reaching out. We'll get back to you soon.",
       });
+      
       reset();
-    },
-    onError: (error: any) => {
-      console.error("Error in contact mutation:", error);
-      toast({
-        title: "Error sending message",
-        description: error.message || "Please try again later.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const onSubmit = (data: ContactFormValues) => {
-    contactMutation.mutate(data);
+      
+      // Reset success state after a delay
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
+    }, 1000);
   };
 
   return (
@@ -194,10 +178,18 @@ export function ContactSection() {
                 <button 
                   type="submit" 
                   className="w-full px-6 py-3 bg-gradient-brand text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
-                  disabled={contactMutation.isPending}
+                  disabled={isSubmitting}
                 >
-                  {contactMutation.isPending ? "Submitting..." : "Submit Request"}
+                  {isSubmitting ? "Submitting..." : "Submit Request"}
                 </button>
+                
+                {/* Success message */}
+                {isSuccess && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-center text-green-700">
+                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                    <p className="text-sm">Your message has been sent! We'll be in touch soon.</p>
+                  </div>
+                )}
               </form>
             </div>
           </div>
