@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, X, Bot, Sparkles, User } from "lucide-react";
+import { Send, X, Bot, Sparkles, Save, Settings, PlusCircle, Trash } from "lucide-react";
 import { Button } from "./button";
 import { GradientText } from "./gradient-text";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,12 @@ interface Message {
   timestamp: Date;
 }
 
+interface TrainingEntry {
+  pattern: string;
+  response: string;
+  category: string;
+}
+
 const initialMessages: Message[] = [
   {
     id: 1,
@@ -21,7 +27,8 @@ const initialMessages: Message[] = [
   }
 ];
 
-const botResponses: { [key: string]: string[] } = {
+// Base bot responses
+const defaultBotResponses: { [key: string]: string[] } = {
   default: [
     "That's an interesting question! SmartScale AI specializes in making AI accessible for small and mid-sized businesses. Would you like to know more about a specific service?",
     "Thanks for reaching out! Our team would be happy to discuss this in more detail. Would you like me to arrange a consultation call?",
@@ -46,13 +53,50 @@ const botResponses: { [key: string]: string[] } = {
     "You can reach our team at info@smartscaleai.ai or call us at (386)473-2002. Would you prefer I help you schedule a call instead?",
     "The best way to get in touch is through our contact form or by emailing info@smartscaleai.ai. Would you like me to direct you to our contact section?",
     "Our team is available at (386)473-2002 or via email at info@smartscaleai.ai. You can also fill out the contact form on this website. How would you prefer to connect?"
+  ],
+  // New category for training
+  training: [
+    "I'm now in training mode! You can teach me by typing a question or keyword pattern, followed by the response you want me to give.",
+    "Training mode activated! Please teach me what to say when users ask something.",
+    "Ready to learn! Type in a question or phrase that a user might ask, and I'll remember it along with your response."
   ]
 };
 
-// Simple keyword matching for demo purposes
+// Function to get custom responses from localStorage
+function getCustomResponses(): { patterns: TrainingEntry[] } {
+  const stored = localStorage.getItem('sparky-custom-responses');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error("Error parsing stored responses:", e);
+      return { patterns: [] };
+    }
+  }
+  return { patterns: [] };
+}
+
+// Function to save custom responses to localStorage
+function saveCustomResponses(patterns: TrainingEntry[]) {
+  localStorage.setItem('sparky-custom-responses', JSON.stringify({ patterns }));
+}
+
+// Enhanced response system with custom pattern matching
 function getBotResponse(userMessage: string): string {
   const lowerCaseMessage = userMessage.toLowerCase();
   
+  // First check for custom trained responses
+  const customResponses = getCustomResponses();
+  
+  for (const entry of customResponses.patterns) {
+    const pattern = entry.pattern.toLowerCase();
+    // Check if user message contains the pattern
+    if (lowerCaseMessage.includes(pattern)) {
+      return entry.response;
+    }
+  }
+  
+  // Fall back to default categorization if no custom match
   if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi") || lowerCaseMessage.includes("hey")) {
     return getRandomResponse("greeting");
   } else if (lowerCaseMessage.includes("service") || lowerCaseMessage.includes("offer") || lowerCaseMessage.includes("provide")) {
@@ -67,7 +111,7 @@ function getBotResponse(userMessage: string): string {
 }
 
 function getRandomResponse(category: string): string {
-  const responses = botResponses[category] || botResponses.default;
+  const responses = defaultBotResponses[category] || defaultBotResponses.default;
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
@@ -77,15 +121,83 @@ export function Chatbot() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [currentMessage, setCurrentMessage] = useState("");
   const [characterState, setCharacterState] = useState<"idle" | "talking" | "thinking">("idle");
+  const [isTrainingMode, setIsTrainingMode] = useState(false);
+  const [trainingStage, setTrainingStage] = useState<"pattern" | "response">("pattern");
+  const [trainingPattern, setTrainingPattern] = useState("");
+  const [customPatterns, setCustomPatterns] = useState<TrainingEntry[]>([]);
+  const [showTrainingPanel, setShowTrainingPanel] = useState(false);
+  
   const messageEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
+  // Load custom patterns on first render
+  useEffect(() => {
+    const savedPatterns = getCustomResponses();
+    setCustomPatterns(savedPatterns.patterns || []);
+  }, []);
+  
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    // Reset to idle state when closing
+    // Reset states when closing
     if (isOpen) {
       setCharacterState("idle");
+      setShowTrainingPanel(false);
     }
+  };
+  
+  const toggleTrainingMode = () => {
+    setIsTrainingMode(!isTrainingMode);
+    if (!isTrainingMode) {
+      // Entering training mode - add a message from Sparky
+      const trainingStartMessage: Message = {
+        id: messages.length + 1,
+        text: getRandomResponse("training"),
+        sender: "bot",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, trainingStartMessage]);
+      setTrainingStage("pattern");
+    } else {
+      // Exiting training mode - reset training-related states
+      setTrainingStage("pattern");
+      setTrainingPattern("");
+    }
+  };
+  
+  const toggleTrainingPanel = () => {
+    setShowTrainingPanel(!showTrainingPanel);
+  };
+  
+  const handleTrainingAdd = (pattern: string, response: string) => {
+    // Add new training pattern
+    const newEntry: TrainingEntry = {
+      pattern: pattern,
+      response: response,
+      category: "custom"
+    };
+    
+    const updatedPatterns = [...customPatterns, newEntry];
+    setCustomPatterns(updatedPatterns);
+    saveCustomResponses(updatedPatterns);
+    
+    // Confirm to user
+    const confirmationMessage: Message = {
+      id: messages.length + 1,
+      text: `I've learned that when someone mentions "${pattern}", I should respond with "${response}". Is there anything else you'd like to teach me?`,
+      sender: "bot",
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, confirmationMessage]);
+    setTrainingStage("pattern");
+    setTrainingPattern("");
+  };
+  
+  const deleteTrainingPattern = (index: number) => {
+    const updatedPatterns = [...customPatterns];
+    updatedPatterns.splice(index, 1);
+    setCustomPatterns(updatedPatterns);
+    saveCustomResponses(updatedPatterns);
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -102,28 +214,57 @@ export function Chatbot() {
     };
     
     setMessages([...messages, newUserMessage]);
+    const userMessageText = currentMessage;
     setCurrentMessage("");
-    setIsBotThinking(true);
-    setCharacterState("thinking");
     
-    // Simulate bot response after a short delay
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: messages.length + 2,
-        text: getBotResponse(currentMessage),
-        sender: "bot",
-        timestamp: new Date()
-      };
+    // Handle differently based on mode
+    if (isTrainingMode) {
+      if (trainingStage === "pattern") {
+        // Store the pattern and move to response stage
+        setTrainingPattern(userMessageText);
+        setTrainingStage("response");
+        
+        // Add a bot message asking for the response
+        const promptMessage: Message = {
+          id: messages.length + 2,
+          text: `Now, tell me how I should respond when someone asks about "${userMessageText}":`,
+          sender: "bot",
+          timestamp: new Date()
+        };
+        
+        setTimeout(() => {
+          setMessages(prev => [...prev, promptMessage]);
+        }, 500);
+        
+      } else {
+        // We have both pattern and response, save them
+        handleTrainingAdd(trainingPattern, userMessageText);
+        setTrainingStage("pattern");
+      }
+    } else {
+      // Normal chat mode
+      setIsBotThinking(true);
+      setCharacterState("thinking");
       
-      setMessages(prev => [...prev, botResponse]);
-      setIsBotThinking(false);
-      setCharacterState("talking");
-      
-      // Return to idle state after "talking"
+      // Simulate bot response after a short delay
       setTimeout(() => {
-        setCharacterState("idle");
-      }, 2000);
-    }, 1500);
+        const botResponse: Message = {
+          id: messages.length + 2,
+          text: getBotResponse(userMessageText),
+          sender: "bot",
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, botResponse]);
+        setIsBotThinking(false);
+        setCharacterState("talking");
+        
+        // Return to idle state after "talking"
+        setTimeout(() => {
+          setCharacterState("idle");
+        }, 2000);
+      }, 1500);
+    }
   };
   
   useEffect(() => {
@@ -224,13 +365,50 @@ export function Chatbot() {
                   
                   <div className="text-white">
                     <h3 className="font-medium text-sm">Sparky</h3>
-                    <p className="text-xs text-white/70">AI Assistant</p>
+                    <p className="text-xs text-white/70">
+                      {isTrainingMode ? 
+                        <span className="flex items-center gap-1">
+                          <PlusCircle className="w-3 h-3" /> Training Mode
+                        </span> 
+                        : "AI Assistant"
+                      }
+                    </p>
                   </div>
                 </div>
                 
-                <Button variant="ghost" size="icon" onClick={toggleChat} className="text-white hover:bg-white/20">
-                  <X className="h-5 w-5" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  {/* Training mode toggle */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleTrainingMode} 
+                    className="text-white hover:bg-white/20"
+                    title={isTrainingMode ? "Exit Training Mode" : "Enter Training Mode"}
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                  </Button>
+                  
+                  {/* Training panel toggle */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleTrainingPanel} 
+                    className="text-white hover:bg-white/20"
+                    title="View/Edit Training Patterns"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                  
+                  {/* Close button */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleChat} 
+                    className="text-white hover:bg-white/20"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
               
               {/* Chat messages */}
@@ -299,15 +477,78 @@ export function Chatbot() {
                 <div ref={messageEndRef} />
               </div>
               
-              {/* Chat input */}
+              {/* Training Panel */}
+              {showTrainingPanel && (
+                <div className="border-t border-gray-200 p-3 max-h-[200px] overflow-y-auto">
+                  <h4 className="font-medium text-sm mb-2 flex items-center justify-between">
+                    <span>Training Patterns ({customPatterns.length})</span>
+                    {customPatterns.length > 0 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          if(confirm("Are you sure you want to clear all training data?")) {
+                            setCustomPatterns([]);
+                            saveCustomResponses([]);
+                          }
+                        }}
+                      >
+                        Clear All
+                      </Button>
+                    )}
+                  </h4>
+                  
+                  {customPatterns.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">No training patterns yet. Enter training mode to teach Sparky.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {customPatterns.map((pattern, index) => (
+                        <div key={index} className="bg-gray-50 p-2 rounded-md text-xs relative group">
+                          <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => deleteTrainingPattern(index)}
+                            >
+                              <Trash className="h-3 w-3 text-gray-500 hover:text-red-500" />
+                            </Button>
+                          </div>
+                          <div className="font-medium">Pattern: <span className="text-primary">{pattern.pattern}</span></div>
+                          <div className="mt-1 pr-6">Response: {pattern.response}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Input area */}
               <form onSubmit={handleSubmit} className="border-t border-gray-200 p-3">
+                {isTrainingMode && trainingStage === "pattern" && (
+                  <div className="mb-2 p-2 bg-yellow-50 rounded-md text-xs text-yellow-800">
+                    <strong>Training:</strong> Type a phrase or question you want Sparky to recognize
+                  </div>
+                )}
+                
+                {isTrainingMode && trainingStage === "response" && (
+                  <div className="mb-2 p-2 bg-green-50 rounded-md text-xs text-green-800">
+                    <strong>Training:</strong> Now type the response Sparky should give to "{trainingPattern}"
+                  </div>
+                )}
+                
                 <div className="flex gap-2">
                   <input
                     ref={inputRef}
                     type="text"
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
-                    placeholder="Type your message..."
+                    placeholder={isTrainingMode 
+                      ? (trainingStage === "pattern" 
+                        ? "Enter keyword or question pattern..." 
+                        : "Enter the response Sparky should give...")
+                      : "Type your message..."}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                   <Button 
