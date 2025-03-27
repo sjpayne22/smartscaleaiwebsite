@@ -75,7 +75,7 @@ export function ContactSection() {
                 </div>
                 <div className="ml-4">
                   <h3 className="font-semibold">Email</h3>
-                  <p className="text-gray-500">info@smartscaleai.com</p>
+                  <p className="text-gray-500">info@smartscaleai.ai</p>
                 </div>
               </div>
               
@@ -85,7 +85,7 @@ export function ContactSection() {
                 </div>
                 <div className="ml-4">
                   <h3 className="font-semibold">Phone</h3>
-                  <p className="text-gray-500">(555) 123-4567</p>
+                  <p className="text-gray-500">(386) 473-2002</p>
                 </div>
               </div>
               
@@ -95,7 +95,7 @@ export function ContactSection() {
                 </div>
                 <div className="ml-4">
                   <h3 className="font-semibold">Location</h3>
-                  <p className="text-gray-500">123 Tech Avenue, Suite 200<br />San Francisco, CA 94105</p>
+                  <p className="text-gray-500">3143 Autumnwood Trl<br />Apopka, Florida 32703</p>
                 </div>
               </div>
             </div>
@@ -103,13 +103,13 @@ export function ContactSection() {
             <div>
               <h3 className="font-semibold mb-4">Connect With Us</h3>
               <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+                <a href="https://www.linkedin.com/in/stanley-payne-212092232" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
                   <Linkedin className="h-5 w-5 text-gray-700" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+                <a href="https://www.facebook.com/profile.php?id=61573967995732" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
                   <Facebook className="h-5 w-5 text-gray-700" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+                <a href="https://www.youtube.com/@SmartScaleai_ai" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
                   <Youtube className="h-5 w-5 text-gray-700" />
                 </a>
               </div>

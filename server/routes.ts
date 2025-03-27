@@ -16,6 +16,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const submission = await storage.createContactSubmission(contactData);
       
       // Return success response
+      // In a real implementation, this would send an email to info@smartscaleai.ai
+      console.log(`Email would be sent to info@smartscaleai.ai with data: ${JSON.stringify(contactData)}`);
+      
       return res.status(201).json({
         message: "Thank you for your message! We'll get back to you soon.",
         id: submission.id
