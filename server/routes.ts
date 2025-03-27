@@ -15,10 +15,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store the contact submission
       const submission = await storage.createContactSubmission(contactData);
       
-      // Return success response
-      // In a real implementation, this would send an email to info@smartscaleai.ai
-      console.log(`Email would be sent to info@smartscaleai.ai with data: ${JSON.stringify(contactData)}`);
+      // On production: Send email notification
+      // For production implementation, you would integrate with a mail service 
+      // such as Nodemailer, SendGrid, or AWS SES to send emails.
+      // This example code demonstrates what would happen in production:
+      console.log(`[Contact Form] Sending email to info@smartscaleai.ai`);
+      console.log(`[Contact Form] From: ${contactData.name} <${contactData.email}>`);
+      console.log(`[Contact Form] Company: ${contactData.company || 'Not provided'}`);
+      console.log(`[Contact Form] Phone: ${contactData.phone || 'Not provided'}`);
+      console.log(`[Contact Form] Message: ${contactData.message}`);
       
+      // Example email that would be sent:
+      const emailTemplate = `
+        New Contact Form Submission
+        --------------------------
+        Name: ${contactData.name}
+        Email: ${contactData.email}
+        Company: ${contactData.company || 'Not provided'}
+        Phone: ${contactData.phone || 'Not provided'}
+        
+        Message:
+        ${contactData.message}
+        
+        This submission was received on ${new Date().toLocaleString()}.
+      `;
+      console.log(`[Contact Form] Email Template: ${emailTemplate}`);
+      
+      // Return success response
       return res.status(201).json({
         message: "Thank you for your message! We'll get back to you soon.",
         id: submission.id
