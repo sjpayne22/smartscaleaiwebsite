@@ -1,6 +1,7 @@
 import { InsightCard } from "@/components/ui/insight-card";
 import { GradientButton } from "@/components/ui/gradient-button";
 import { useState } from "react";
+import { Link } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -251,11 +252,11 @@ export function InsightsSection() {
         </div>
         
         <div className="mt-10 text-center">
-          <a href="#contact">
+          <Link to="/blog">
             <GradientButton variant="outline">
               View All Insights
             </GradientButton>
-          </a>
+          </Link>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Logo } from "@/components/ui/logo";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,14 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const [location] = useLocation();
 
   const navItems: NavItem[] = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Insights", href: "#insights" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "#contact" },
   ];
 
@@ -77,17 +80,30 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
           {navItems.map((item) => (
-            <a 
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "relative text-gray-700 hover:text-gray-900 transition",
-                activeSection === item.href.substring(1) ? "nav-link active" : "nav-link"
-              )}
-              onClick={() => setActiveSection(item.href.substring(1))}
-            >
-              {item.label}
-            </a>
+            item.href.startsWith("/") ? (
+              <Link 
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "relative text-gray-700 hover:text-gray-900 transition",
+                  location === item.href ? "nav-link active" : "nav-link"
+                )}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a 
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "relative text-gray-700 hover:text-gray-900 transition",
+                  activeSection === item.href.substring(1) ? "nav-link active" : "nav-link"
+                )}
+                onClick={() => setActiveSection(item.href.substring(1))}
+              >
+                {item.label}
+              </a>
+            )
           ))}
         </nav>
         
@@ -106,14 +122,25 @@ export function Header() {
       <div className={cn("md:hidden bg-white border-t", mobileMenuOpen ? "block" : "hidden")}>
         <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
           {navItems.map((item) => (
-            <a 
-              key={item.href}
-              href={item.href}
-              className="py-2 text-gray-700 hover:text-gray-900 transition"
-              onClick={closeMobileMenu}
-            >
-              {item.label}
-            </a>
+            item.href.startsWith("/") ? (
+              <Link 
+                key={item.href}
+                to={item.href}
+                className="py-2 text-gray-700 hover:text-gray-900 transition"
+                onClick={closeMobileMenu}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a 
+                key={item.href}
+                href={item.href}
+                className="py-2 text-gray-700 hover:text-gray-900 transition"
+                onClick={closeMobileMenu}
+              >
+                {item.label}
+              </a>
+            )
           ))}
         </div>
       </div>
