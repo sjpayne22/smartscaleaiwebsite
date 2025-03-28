@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, CheckCircle } from "lucide-react";
 import { Facebook, Linkedin, Youtube } from "lucide-react";
+import { submitContactForm } from "../../services/wordpressApi";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -33,19 +34,14 @@ export function ContactSection() {
     }
   });
 
-  const onSubmit = (data: ContactFormValues) => {
+  const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
     
-    // In a real implementation, this would send data to a server
-    // For now, we'll simulate sending an email to info@smartscaleai.ai
-    console.log("Contact form submission:", data);
-    console.log("This would send an email to info@smartscaleai.ai");
-    
-    // Simulate successful submission after delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
+    try {
+      // Attempt to submit form to WordPress
+      await submitContactForm(data);
       
+      setIsSuccess(true);
       toast({
         title: "Message sent!",
         description: "Thank you for reaching out. We'll get back to you soon.",
@@ -57,7 +53,27 @@ export function ContactSection() {
       setTimeout(() => {
         setIsSuccess(false);
       }, 5000);
-    }, 1000);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      
+      // Show error message
+      toast({
+        title: "Message not sent",
+        description: "There was an error sending your message. Please try again later.",
+        variant: "destructive",
+      });
+      
+      // Fallback to client-side success for development/demo
+      if (process.env.NODE_ENV === 'development') {
+        setIsSuccess(true);
+        reset();
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 5000);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

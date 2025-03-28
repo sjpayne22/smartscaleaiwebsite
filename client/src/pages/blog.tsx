@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { InsightCard } from "@/components/ui/insight-card";
@@ -6,7 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Tag, User, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { InsightPost, allBlogPosts } from "../lib/blog-data";
+import { fetchPosts } from "../services/wordpressApi";
+import { InsightPost, allBlogPosts } from "../lib/blog-data"; // Keep for types and fallback data
 import { cn } from "@/lib/utils";
 
 // List of categories for filtering
@@ -26,6 +27,35 @@ export default function Blog() {
   // State for search and filtering
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // State for blog posts from WordPress
+  const [posts, setPosts] = useState<InsightPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Fetch posts from WordPress
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const fetchedPosts = await fetchPosts();
+        if (fetchedPosts && fetchedPosts.length > 0) {
+          setPosts(fetchedPosts);
+        } else {
+          // Fallback to local data if no posts are returned or if API fails
+          setPosts(allBlogPosts);
+        }
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch posts:', err);
+        setError('Failed to load blog posts. Using fallback data.');
+        setPosts(allBlogPosts);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadPosts();
+  }, []);
   
   // Function to handle opening an insight dialog
   const handleOpenInsightDetail = (title: string) => {
@@ -38,7 +68,7 @@ export default function Blog() {
   };
 
   // Filter posts based on search query and selected category
-  const filteredPosts = allBlogPosts.filter((post: InsightPost) => {
+  const filteredPosts = posts.filter((post: InsightPost) => {
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           post.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory ? post.category === selectedCategory : true;
@@ -95,7 +125,25 @@ export default function Blog() {
         {/* Blog posts grid */}
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
-            {filteredPosts.length > 0 ? (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-12 h-12 border-4 border-gray-200 rounded-full animate-spin border-t-primary"></div>
+                <p className="mt-4 text-gray-600">Loading blog posts...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded my-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">{error}</p>
+                  </div>
+                </div>
+              </div>
+            ) : filteredPosts.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredPosts.map((post: InsightPost, index: number) => (
                   <InsightCard
@@ -121,7 +169,7 @@ export default function Blog() {
         </section>
       
         {/* Insight Detail Dialogs */}
-        {allBlogPosts.map((insight: InsightPost) => {
+        {posts.map((insight: InsightPost) => {
           const colorClass = insight.color === 'turquoise' ? 'text-[#0AB5CE]' : 
                            insight.color === 'green' ? 'text-[#5CDC74]' : 
                            'text-[#FDA035]';

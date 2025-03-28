@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, X, Bot, Sparkles, Save, Settings, PlusCircle, Trash } from "lucide-react";
+import { Send, X, Bot, Sparkles, Save, Settings, PlusCircle, Trash, Wifi, WifiOff } from "lucide-react";
 import { Button } from "./button";
 import { GradientText } from "./gradient-text";
 import { cn } from "@/lib/utils";
+import { useWebSocket, WebSocketMessage } from "@/hooks/useWebSocket";
 
 interface Message {
   id: number;
@@ -126,9 +127,73 @@ export function Chatbot() {
   const [trainingPattern, setTrainingPattern] = useState("");
   const [customPatterns, setCustomPatterns] = useState<TrainingEntry[]>([]);
   const [showTrainingPanel, setShowTrainingPanel] = useState(false);
+  const [useWebSocketChat, setUseWebSocketChat] = useState(false);
   
   const messageEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Initialize WebSocket connection
+  const { 
+    isConnected, 
+    lastMessage, 
+    sendMessage,
+    connect: connectWebSocket,
+    disconnect: disconnectWebSocket
+  } = useWebSocket({
+    onMessage: (message) => {
+      // Handle incoming WebSocket messages
+      if (message.type === 'chat') {
+        // Add message to the chat if it's from the server
+        if (message.sender === 'bot') {
+          const wsMessage: Message = {
+            id: messages.length + 1,
+            text: message.message,
+            sender: "bot",
+            timestamp: new Date(message.timestamp || new Date())
+          };
+          
+          setMessages(prev => [...prev, wsMessage]);
+          setIsBotThinking(false);
+          setCharacterState("talking");
+          
+          // Return to idle state after "talking"
+          setTimeout(() => {
+            setCharacterState("idle");
+          }, 2000);
+        }
+      } else if (message.type === 'welcome') {
+        // Connection established with server
+        console.log('WebSocket connected:', message.message);
+      }
+    },
+    onConnect: () => {
+      console.log('WebSocket connected successfully');
+      // Add connection notification
+      if (isOpen && useWebSocketChat) {
+        const connectionMessage: Message = {
+          id: messages.length + 1,
+          text: "Connected to live chat server. You can now chat with the AI team!",
+          sender: "bot",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, connectionMessage]);
+      }
+    },
+    onDisconnect: () => {
+      console.log('WebSocket disconnected');
+      // Add disconnection notification if chat is open
+      if (isOpen && useWebSocketChat) {
+        const disconnectionMessage: Message = {
+          id: messages.length + 1,
+          text: "Disconnected from live chat server. Switched to local bot responses.",
+          sender: "bot",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, disconnectionMessage]);
+        setUseWebSocketChat(false);
+      }
+    }
+  });
   
   // Load custom patterns on first render
   useEffect(() => {
@@ -241,8 +306,42 @@ export function Chatbot() {
         handleTrainingAdd(trainingPattern, userMessageText);
         setTrainingStage("pattern");
       }
+    } else if (useWebSocketChat && isConnected) {
+      // Real-time chat mode via WebSocket
+      setIsBotThinking(true);
+      setCharacterState("thinking");
+      
+      // Send message to server via WebSocket
+      sendMessage({
+        type: 'chat',
+        sender: 'user',
+        message: userMessageText,
+        timestamp: new Date().toISOString()
+      });
+      
+      // If no response in 5 seconds, use local bot
+      const fallbackTimer = setTimeout(() => {
+        if (isBotThinking) {
+          const botResponse: Message = {
+            id: messages.length + 2,
+            text: "I didn't get a response from the server. " + getBotResponse(userMessageText),
+            sender: "bot",
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, botResponse]);
+          setIsBotThinking(false);
+          setCharacterState("talking");
+          
+          setTimeout(() => {
+            setCharacterState("idle");
+          }, 2000);
+        }
+      }, 5000);
+      
+      return () => clearTimeout(fallbackTimer);
     } else {
-      // Normal chat mode
+      // Normal local chat mode
       setIsBotThinking(true);
       setCharacterState("thinking");
       
@@ -366,17 +465,45 @@ export function Chatbot() {
                   <div className="text-white">
                     <h3 className="font-medium text-sm">Sparky</h3>
                     <p className="text-xs text-white/70">
-                      {isTrainingMode ? 
+                      {isTrainingMode ? (
                         <span className="flex items-center gap-1">
                           <PlusCircle className="w-3 h-3" /> Training Mode
-                        </span> 
-                        : "AI Assistant"
-                      }
+                        </span>
+                      ) : useWebSocketChat && isConnected ? (
+                        <span className="flex items-center gap-1">
+                          <Wifi className="w-3 h-3 text-green-300" /> Live Chat
+                        </span>
+                      ) : (
+                        "AI Assistant"
+                      )}
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-1">
+                  {/* WebSocket connection toggle */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => {
+                      if (useWebSocketChat) {
+                        disconnectWebSocket();
+                        setUseWebSocketChat(false);
+                      } else {
+                        connectWebSocket();
+                        setUseWebSocketChat(true);
+                      }
+                    }} 
+                    className="text-white hover:bg-white/20"
+                    title={useWebSocketChat ? "Disconnect from Live Chat" : "Connect to Live Chat"}
+                  >
+                    {isConnected && useWebSocketChat ? (
+                      <Wifi className="h-4 w-4 text-green-300" />
+                    ) : (
+                      <WifiOff className="h-4 w-4" />
+                    )}
+                  </Button>
+                  
                   {/* Training mode toggle */}
                   <Button 
                     variant="ghost" 
@@ -411,6 +538,14 @@ export function Chatbot() {
                 </div>
               </div>
               
+              {/* Live chat indicator banner */}
+              {useWebSocketChat && isConnected && (
+                <div className="bg-green-100 text-green-800 px-4 py-2 text-xs flex items-center gap-2">
+                  <Wifi className="h-3 w-3" />
+                  <span>Connected to live chat service</span>
+                </div>
+              )}
+
               {/* Chat messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
