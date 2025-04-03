@@ -1,15 +1,15 @@
 import axios from 'axios';
 import WPAPI from 'wpapi';
 
-// Using WordPress.com site as the headless CMS
-// Replace with your actual WordPress.com site URL
-const WP_API_URL = import.meta.env.VITE_WP_API_URL || 'https://yoursitename.wordpress.com/wp-json/wp/v2';
+// This should be your WordPress site URL
+// Replace with your actual WordPress URL when deployed
+const WP_API_URL = 'https://smartscaleai.ai/wp-json/wp/v2';
 
 // Initialize the WordPress API client
 let wp;
 try {
   wp = new WPAPI({
-    endpoint: WP_API_URL.replace('/wp/v2', ''),
+    endpoint: 'https://smartscaleai.ai/wp-json',
   });
 } catch (error) {
   console.error('Failed to initialize WordPress API:', error);
