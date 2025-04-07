@@ -1,0 +1,12 @@
+
+# Enable rewrite engine
+RewriteEngine On
+RewriteBase /wp-content/replit/
+
+# Handle client-side routing
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [L,QSA]
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
