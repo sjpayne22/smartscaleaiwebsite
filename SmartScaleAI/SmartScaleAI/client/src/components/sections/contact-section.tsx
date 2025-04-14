@@ -103,7 +103,7 @@ export function ContactSection() {
                 </div>
                 <div className="ml-4">
                   <h3 className="font-semibold">Phone</h3>
-                  <p className="text-gray-500">(386) 473-2002</p>
+                  <p className="text-gray-500">(386) 801-6711</p>
                 </div>
               </div>
               
