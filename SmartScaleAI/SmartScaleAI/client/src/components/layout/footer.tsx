@@ -38,7 +38,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   // State for managing which policy dialog is open
   const [openPolicy, setOpenPolicy] = useState<'privacy' | 'terms' | 'cookies' | null>(null);
-  
+
   const quickLinks = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
@@ -86,11 +86,11 @@ export function Footer() {
               </a>
             </div>
           </div>
-          
+
           <FooterSection title="Quick Links" links={quickLinks} />
           <FooterSection title="Services" links={services} />
         </div>
-        
+
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
@@ -129,7 +129,7 @@ export function Footer() {
               Last Updated: March 1, 2025
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="overflow-y-auto pr-2 my-4 max-h-[calc(80vh-180px)]">
             <div className="space-y-4">
               <section>
@@ -200,12 +200,12 @@ export function Footer() {
                   SmartScale AI Consulting LLC<br />
                   3143 Autumnwood Trl, Apopka, Florida 32703<br />
                   Email: info@smartscaleai.ai<br />
-                  Phone: (386) 473-2002
+                  Phone: (386) 801-6711
                 </p>
               </section>
             </div>
           </div>
-          
+
           <DialogFooter className="border-t pt-4">
             <DialogClose asChild>
               <Button>Close</Button>
@@ -223,7 +223,7 @@ export function Footer() {
               Last Updated: March 1, 2025
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="overflow-y-auto pr-2 my-4 max-h-[calc(80vh-180px)]">
             <div className="space-y-4">
               <section>
@@ -292,12 +292,12 @@ export function Footer() {
                   SmartScale AI Consulting LLC<br />
                   3143 Autumnwood Trl, Apopka, Florida 32703<br />
                   Email: info@smartscaleai.ai<br />
-                  Phone: (386) 473-2002
+                  Phone: (386) 801-6711
                 </p>
               </section>
             </div>
           </div>
-          
+
           <DialogFooter className="border-t pt-4">
             <DialogClose asChild>
               <Button>Close</Button>
@@ -315,7 +315,7 @@ export function Footer() {
               Last Updated: March 1, 2025
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="overflow-y-auto pr-2 my-4 max-h-[calc(80vh-180px)]">
             <div className="space-y-4">
               <section>
@@ -383,12 +383,12 @@ export function Footer() {
                   SmartScale AI Consulting LLC<br />
                   3143 Autumnwood Trl, Apopka, Florida 32703<br />
                   Email: info@smartscaleai.ai<br />
-                  Phone: (386) 473-2002
+                  Phone: (386) 801-6711
                 </p>
               </section>
             </div>
           </div>
-          
+
           <DialogFooter className="border-t pt-4">
             <DialogClose asChild>
               <Button>Close</Button>
