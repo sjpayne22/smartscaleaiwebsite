@@ -38,16 +38,18 @@ export function ContactSection() {
     setIsSubmitting(true);
     
     try {
-      // Attempt to submit form to WordPress
-      await submitContactForm(data);
+      const response = await submitContactForm(data);
       
-      setIsSuccess(true);
-      toast({
-        title: "Message sent!",
-        description: "Thank you for reaching out. We'll get back to you soon.",
-      });
-      
-      reset();
+      if (response && response.id) {
+        setIsSuccess(true);
+        toast({
+          title: "Message sent!",
+          description: "Thank you for reaching out. We'll get back to you soon.",
+        });
+        reset();
+      } else {
+        throw new Error('Invalid server response');
+      }
       
       // Reset success state after a delay
       setTimeout(() => {

@@ -67,6 +67,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store the contact submission
       const submission = await storage.createContactSubmission(contactData);
+
+      // Send response immediately after successful submission
+      res.status(201).json({
+        message: "Thank you for your message! We'll get back to you soon.",
+        id: submission.id
+      });
       
       // On production: Send email notification
       // For production implementation, you would integrate with a mail service 
