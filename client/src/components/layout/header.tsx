@@ -16,14 +16,14 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
 
-  const navItems: NavItem[] = [
-    { label: "Home", href: "#home" },
-    { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Insights", href: "#insights" },
-    { label: "Blog", href: "/blog" },
-    { label: "Contact", href: "#contact" },
-  ];
+const navItems: NavItem[] = [
+  { label: "Home", href: "#home" },
+  { label: "About", href: "#about" },
+  { label: "Services", href: "#services" },
+  { label: "Insights", href: "#insights" },
+  { label: "Blog", href: "/blog" },
+  { label: "Contact Us", href: "https://blog.smartscaleai.ai/contact" },
+];
 
   useEffect(() => {
     const handleScroll = () => {
