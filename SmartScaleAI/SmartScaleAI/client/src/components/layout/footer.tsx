@@ -44,7 +44,8 @@ export function Footer() {
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Insights", href: "#insights" },
-    { label: "Contact", href: "#contact" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact Us", href: "https://blog.smartscaleai.ai/contact" },
   ];
 
   const services = [
