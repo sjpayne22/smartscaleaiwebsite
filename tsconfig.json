@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -9,6 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "baseUrl": ".",
+
     "paths": {
       "@/*": ["client/src/*"],
       "@shared/*": ["shared/*"],
