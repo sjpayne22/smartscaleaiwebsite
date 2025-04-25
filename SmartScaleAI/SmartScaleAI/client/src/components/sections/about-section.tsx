@@ -51,7 +51,7 @@ export function AboutSection() {
             
             <a href="#contact">
               <GradientButton>
-                Schedule a Discovery Call
+                Schedule a Discovery Call Today
               </GradientButton>
             </a>
           </div>
