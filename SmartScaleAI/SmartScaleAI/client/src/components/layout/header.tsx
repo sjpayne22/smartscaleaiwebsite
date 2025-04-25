@@ -22,7 +22,7 @@ export function Header() {
     { label: "Services", href: "#services" },
     { label: "Insights", href: "#insights" },
     { label: "Blog", href: "/blog" },
-    { label: "Contact Us", href: "https://blog.smartscaleai.ai/contact" },
+    { label: "Contact Us 2", href: "https://blog.smartscaleai.ai/contact" },
   ];
 
   useEffect(() => {
