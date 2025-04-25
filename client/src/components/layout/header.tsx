@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   { label: "Services", href: "#services" },
   { label: "Insights", href: "#insights" },
   { label: "Blog", href: "/blog" },
-  { label: "Contact Us ", href: "https://blog.smartscaleai.ai/contact" },
+  { label: "Contact Us 3", href: "https://blog.smartscaleai.ai/contact" },
 ];
 
   useEffect(() => {
