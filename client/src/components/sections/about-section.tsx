@@ -1,6 +1,8 @@
 import { GradientButton } from "@/components/ui/gradient-button";
 import { Check } from "lucide-react";
-import stanleyPaynePhoto from "@assets/StanleyPayneYounger.jpg";
+//import stanleyPaynePhoto from "@assets/StanleyPayneYounger.jpg";
+//import stanleyPaynePhoto from "../../../attached_assets/StanleyPayneYounger.jpg";
+const stanleyPaynePhoto = "/assets/StanleyPayneYounger.jpg";
 
 export function AboutSection() {
   const valueProps = [

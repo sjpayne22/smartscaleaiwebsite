@@ -1,4 +1,5 @@
-import logoSrc from "@assets/Logox512blur_V2.png";
+//import logoSrc from "@assets/Logox512blur_V2.png";
+const logoSrc = "/assets/Logox512blur_V2.jpg";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
