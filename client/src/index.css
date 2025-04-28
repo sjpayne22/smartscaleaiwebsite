@@ -2,73 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    @apply border-none;
-  }
+/* Global CSS Variables */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 220 9% 12%;
 
-  body {
-    /* @apply font-light antialiased bg-background text-foreground;*/
-  }
+  --muted: 240 4% 95%;
+  --muted-foreground: 240 5% 40%;
+
+  --border: 220 5% 90%;
+  --input: 220 5% 90%;
+  --ring: 220 5% 90%;
+
+  --primary: 240 100% 50%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 60 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: 300 100% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 60 9% 98%;
+
+  --radius: 0.5rem;
 }
 
-@layer components {
-  /* Testimonial carousel styling and animations */
-  .testimonial-carousel {
-    position: relative;
-  }
-  
-  /* Custom animations for testimonial elements */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
-  }
-  
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 10px rgba(10, 181, 206, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(10, 181, 206, 0.5);
-    }
-  }
-  
-  @keyframes shimmer {
-    0% {
-      background-position: -100% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-  
-  /* Animation classes */
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-  
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-  
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(10, 181, 206, 0.1),
-      transparent
-    );
-    background-size: 200% 100%;
-    animation: shimmer 3s infinite;
-  }
-  
-  /* Active testimonial styling */
-  .active-testimonial {
-    transform: scale(1.02);
-    z-index: 20;
-  }
+/* Example Custom Styles (optional) */
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
