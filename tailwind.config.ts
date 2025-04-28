@@ -1,20 +1,26 @@
-import { type Config } from "tailwindcss";
+import { defineConfig } from 'tailwindcss';
 
-const config: Config = {
+export default defineConfig({
   content: [
-    "./client/index.html",
-    "./client/src/**/*.{js,ts,jsx,tsx}",
+    './client/src/**/*.{js,ts,jsx,tsx,html}', // Adjust the path as needed
   ],
   theme: {
     extend: {
       colors: {
-        border: "hsl(220, 14%, 96%)",        // ✅ Now Tailwind understands border-border
-        background: "hsl(0, 0%, 100%)",       // Matches your bg-background if needed
-        foreground: "hsl(220, 9%, 20%)",      // Matches your text-foreground if needed
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: 'hsl(var(--primary))',
+        secondary: 'hsl(var(--secondary))',
+        accent: 'hsl(var(--accent))',
+        destructive: 'hsl(var(--destructive))',
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
       },
     },
   },
   plugins: [],
-};
-
-export default config;
+});
