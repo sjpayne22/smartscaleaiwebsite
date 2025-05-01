@@ -53,8 +53,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./dist/public/assets/index-DsM3X4JX.js"></script>
-  <link rel="stylesheet" crossorigin href="./dist/public/assets/index-BuI6fTtC.css">
+  <!-- Load assets with relative paths -->
+  <script type="module" crossorigin src="./assets/index-DsM3X4JX.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BuI6fTtC.css">
   
   <!-- Single Page Apps for GitHub Pages -->
   <script type="text/javascript">
@@ -69,6 +70,17 @@
         window.history.replaceState(null, null,
             l.pathname.slice(0, -1) + decoded + l.hash
         );
+      }
+      
+      // Also handle redirect from GitHub Pages 404 page
+      // Special handling for p and q params from the 404.html redirect
+      if (l.search.includes('?p=')) {
+        const urlParams = new URLSearchParams(l.search);
+        const redirectPath = urlParams.get('p');
+        const queryParams = urlParams.get('q');
+        const finalPath = redirectPath + (queryParams ? '?' + queryParams : '') + l.hash;
+        
+        window.history.replaceState(null, null, finalPath);
       }
     }(window.location))
   </script>

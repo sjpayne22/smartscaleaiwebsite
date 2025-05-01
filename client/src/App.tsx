@@ -9,6 +9,14 @@ import Blog from "@/pages/blog";
 import { useEffect } from "react";
 
 function Router() {
+  // Get the base path for GitHub Pages
+  const getBasePath = () => {
+    // When deploying to GitHub Pages at username.github.io/repo-name
+    // we need to use the repo name as the base path
+    // For local development, this will be an empty string
+    return window.location.hostname === 'sjpayne22.github.io' ? '/smartscaaleai-website' : '';
+  };
+
   useEffect(() => {
     // Smooth scrolling for anchor links
     const handleAnchorClick = (e: MouseEvent) => {
@@ -39,8 +47,11 @@ function Router() {
     };
   }, []);
 
+  // Use the base path in your routes
+  const basePath = getBasePath();
+
   return (
-    <Switch>
+    <Switch base={basePath}>
       <Route path="/" component={Home} />
       <Route path="/blog" component={Blog} />
       <Route component={NotFound} />
