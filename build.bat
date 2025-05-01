@@ -1,0 +1,3 @@
+@echo off
+echo Building SmartScale AI Website...
+node build.js
