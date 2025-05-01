@@ -2,27 +2,19 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  
+  # Handle client-side routing
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
+  RewriteRule . /index.html [L,QSA]
 </IfModule>
 
 # Enable GZIP compression
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
 </IfModule>
-
-
-# Enable rewrite engine
-RewriteEngine On
-RewriteBase /wp-content/replit/
-
-# Handle client-side routing
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.html [L,QSA]
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
