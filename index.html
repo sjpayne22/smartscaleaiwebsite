@@ -19,8 +19,12 @@
   
   <!-- Load the actual app -->
   <script type="text/javascript">
+    // Determine if we're on GitHub Pages
+    var isGitHubPages = window.location.hostname.includes('github.io');
+    var repoName = isGitHubPages ? '/smartscaleai-website' : '';
+    
     // Redirect to the actual app
-    window.location.href = 'build/index.html' + window.location.pathname.replace('index.html', '') + window.location.search;
+    window.location.href = repoName + '/build/index.html';
   </script>
 </head>
 <body>

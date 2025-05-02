@@ -4,9 +4,13 @@
   <meta charset="utf-8">
   <title>SmartScale AI - Page Not Found</title>
   <script type="text/javascript">
+    // Determine if we're on GitHub Pages
+    var isGitHubPages = window.location.hostname.includes('github.io');
+    var repoName = isGitHubPages ? '/smartscaleai-website' : '';
+    
     // Simple redirect to the root with the current URL as a parameter
     var path = window.location.pathname;
-    window.location.href = '/?p=' + encodeURIComponent(path);
+    window.location.href = repoName + '/?p=' + encodeURIComponent(path);
   </script>
 </head>
 <body>
