@@ -2,24 +2,17 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SmartScale AI</title>
+  <title>SmartScale AI - Page Not Found</title>
   <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // MIT License
-    // https://github.com/rafgraph/spa-github-pages
-    // This needs to match your GitHub Pages repository name
-    var repoName = "smartscaaleai-website";
-    var segmentCount = 1; // Adjust based on your GitHub Pages structure
-    var l = window.location;
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-      l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-      (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-      l.hash
-    );
+    // Simple redirect to the root with the current URL as a parameter
+    var path = window.location.pathname;
+    window.location.href = '/?p=' + encodeURIComponent(path);
   </script>
 </head>
 <body>
+  <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px;">
+    <h1>Page Not Found</h1>
+    <p>Redirecting to homepage...</p>
+  </div>
 </body>
 </html>
