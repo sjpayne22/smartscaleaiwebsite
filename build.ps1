@@ -104,6 +104,10 @@ if (-not (Test-Path -Path "build")) {
     New-Item -Path "build" -ItemType Directory | Out-Null
 }
 
+# Fix asset paths in dist/public/index.html
+Write-Host "Fixing asset paths in built files..."
+node fix-asset-paths.js
+
 # Copy dist/public content to build
 Write-Host "Copying build files to build directory..."
 Copy-Item -Path "dist/public/*" -Destination "build" -Recurse -Force
