@@ -1,0 +1,54 @@
+PS E:\Smartscaleai\Githubwebsite\smartscaleai-website> ./build.ps1
+Building SmartScale AI Website for GitHub Pages...
+Cleaning up previous build...
+Cleaning up dist directory...
+Checking client/index.html...
+Running Vite build...
+
+> build
+> vite build
+
+vite v6.3.3 building for production...
+transforming (1) src\main.tsx
+warn - No utility classes were detected in your source files. If this is unexpected, double-check the `content` option in your Tailwind CSS configuration.
+warn - https://tailwindcss.com/docs/content-configuration
+✓ 2292 modules transformed.
+../build/index.html                   2.11 kB │ gzip:   0.88 kB
+../build/assets/index-Be15NovN.css    5.25 kB │ gzip:   1.56 kB
+../build/assets/index-V-tHvTNN.js   764.93 kB │ gzip: 243.86 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.78s
+Build completed successfully!
+Creating build directory for GitHub Pages...
+Fixing asset paths in built files...
+Fixing asset paths in: E:\Smartscaleai\Githubwebsite\smartscaleai-website\dist\public\index.html
+Error fixing asset paths: Error: ENOENT: no such file or directory, open 'E:\Smartscaleai\Githubwebsite\smartscaleai-website\dist\public\index.html'
+    at Object.readFileSync (node:fs:443:20)
+    at Object.<anonymous> (E:\Smartscaleai\Githubwebsite\smartscaleai-website\fix-asset-paths.js:15:22)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Function._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:151:5)
+    at node:internal/main/run_main_module:33:47 {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'E:\\Smartscaleai\\Githubwebsite\\smartscaleai-website\\dist\\public\\index.html'
+}
+Fixing asset paths in: E:\Smartscaleai\Githubwebsite\smartscaleai-website\build\index.html
+Fixed asset paths in build/index.html
+Asset path fixing complete!
+Copying build files to build directory...
+Copy-Item : Cannot find path 'E:\Smartscaleai\Githubwebsite\smartscaleai-website\dist\public' because it does not exist.
+At E:\Smartscaleai\Githubwebsite\smartscaleai-website\build.ps1:113 char:1
++ Copy-Item -Path "dist/public/*" -Destination "build" -Recurse -Force
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (E:\Smartscaleai...ite\dist\public:String) [Copy-Item], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.CopyItemCommand

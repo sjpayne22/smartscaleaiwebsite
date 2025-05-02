@@ -8,12 +8,6 @@ if (Test-Path -Path "build") {
     Remove-Item -Path "build" -Recurse -Force
 }
 
-# Clean dist directory if it exists
-if (Test-Path -Path "dist") {
-    Write-Host "Cleaning up dist directory..."
-    Remove-Item -Path "dist" -Recurse -Force
-}
-
 # First, make sure client/index.html is correct
 Write-Host "Checking client/index.html..."
 $clientIndexHtml = @"
@@ -80,6 +74,41 @@ $clientIndexHtml = @"
 "@
 Set-Content -Path "client/index.html" -Value $clientIndexHtml
 
+# First, update the fix-asset-paths.js file to work with your project structure
+$fixAssetPathsContent = @"
+const fs = require('fs');
+const path = require('path');
+
+// Path to the built index.html file (directly in build folder for this project)
+const buildIndexHtmlPath = path.join(__dirname, 'build', 'index.html');
+
+console.log('Fixing asset paths in:', buildIndexHtmlPath);
+
+try {
+  // Check if the file exists
+  if (fs.existsSync(buildIndexHtmlPath)) {
+    // Read the build/index.html file
+    let buildIndexHtml = fs.readFileSync(buildIndexHtmlPath, 'utf8');
+    
+    // Replace absolute paths with relative paths
+    buildIndexHtml = buildIndexHtml.replace(/src="\/assets\//g, 'src="./assets/');
+    buildIndexHtml = buildIndexHtml.replace(/href="\/assets\//g, 'href="./assets/');
+    
+    // Write the fixed index.html file
+    fs.writeFileSync(buildIndexHtmlPath, buildIndexHtml, 'utf8');
+    
+    console.log('Fixed asset paths in build/index.html');
+  } else {
+    console.log('build/index.html does not exist yet');
+  }
+} catch (error) {
+  console.error('Error fixing asset paths in build/index.html:', error);
+}
+
+console.log('Asset path fixing complete!');
+"@
+Set-Content -Path "fix-asset-paths.js" -Value $fixAssetPathsContent
+
 # Run the standard Vite build
 try {
     Write-Host "Running Vite build..."
@@ -96,21 +125,9 @@ try {
 
 Write-Host "Build completed successfully!"
 
-# Create folder structure for GitHub Pages
-Write-Host "Creating build directory for GitHub Pages..."
-
-# Create build directory if it doesn't exist
-if (-not (Test-Path -Path "build")) {
-    New-Item -Path "build" -ItemType Directory | Out-Null
-}
-
-# Fix asset paths in dist/public/index.html
+# Fix asset paths in build/index.html
 Write-Host "Fixing asset paths in built files..."
 node fix-asset-paths.js
-
-# Copy dist/public content to build
-Write-Host "Copying build files to build directory..."
-Copy-Item -Path "dist/public/*" -Destination "build" -Recurse -Force
 
 # Create simple index.html for GitHub Pages
 Write-Host "Creating index.html in the repository root..."
