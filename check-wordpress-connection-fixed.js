@@ -1,25 +1,16 @@
 /**
- * WordPress API Connection Test
+ * WordPress API Connection Test (v2)
  * 
  * This script checks if your WordPress.com REST API is properly configured
  * and can be accessed from your application.
+ * 
+ * Compatible with older Node.js versions.
  */
 
 const WPAPI = require('wpapi');
-// Handle different versions of node-fetch
-let fetch;
-try {
-  // For newer versions of node-fetch (v3+)
-  const nodeFetch = require('node-fetch');
-  if (nodeFetch.default && typeof nodeFetch.default === 'function') {
-    fetch = nodeFetch.default;
-  } else {
-    fetch = nodeFetch;
-  }
-} catch (e) {
-  console.error('Error loading node-fetch. Make sure it\'s installed: npm install node-fetch');
-  process.exit(1);
-}
+const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 
 // Your WordPress site URL
 const WP_SITE_URL = process.env.WP_API_URL || 'https://blog.smartscaleai.ai';
@@ -27,26 +18,65 @@ const WP_SITE_URL = process.env.WP_API_URL || 'https://blog.smartscaleai.ai';
 console.log('Testing WordPress API connectivity...');
 console.log(`Target WordPress site: ${WP_SITE_URL}`);
 
-// Basic fetch test
+// Simple HTTP request function
+function makeRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const protocol = parsedUrl.protocol === 'https:' ? https : http;
+    
+    const req = protocol.request(url, options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            // Attempt to parse JSON
+            try {
+              const jsonData = JSON.parse(data);
+              resolve({ statusCode: res.statusCode, headers: res.headers, body: jsonData });
+            } catch (e) {
+              // Not JSON
+              resolve({ statusCode: res.statusCode, headers: res.headers, body: data });
+            }
+          } else {
+            resolve({ statusCode: res.statusCode, headers: res.headers, body: data });
+          }
+        } catch (e) {
+          reject(new Error(`Error parsing response: ${e.message}`));
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      reject(error);
+    });
+    
+    req.end();
+  });
+}
+
+// Basic API connection test
 async function testBasicConnection() {
   try {
     console.log('\n1. Testing basic REST API connection...');
-    const response = await fetch(`${WP_SITE_URL}/wp-json`);
+    const response = await makeRequest(`${WP_SITE_URL}/wp-json`);
     
-    if (response.status === 200) {
-      const data = await response.json();
-      console.log('✅ Basic API connection successful!');
-      console.log(`WordPress name: ${data.name}`);
-      console.log(`WordPress description: ${data.description}`);
-      console.log(`WordPress URL: ${data.url}`);
+    if (response.statusCode === 200) {
+      console.log('\u2705 Basic API connection successful!');
+      console.log(`WordPress name: ${response.body.name}`);
+      console.log(`WordPress description: ${response.body.description}`);
+      console.log(`WordPress URL: ${response.body.url}`);
       return true;
     } else {
-      console.error(`❌ API connection failed with status: ${response.status}`);
-      console.error('Response:', await response.text());
+      console.error(`\u274c API connection failed with status: ${response.statusCode}`);
+      console.error('Response:', response.body);
       return false;
     }
   } catch (error) {
-    console.error('❌ Failed to connect to WordPress API:');
+    console.error('\u274c Failed to connect to WordPress API:');
     console.error(error.message);
     return false;
   }
@@ -61,16 +91,16 @@ async function testWPAPI() {
     const posts = await wp.posts().perPage(1).get();
     
     if (posts && posts.length > 0) {
-      console.log('✅ WPAPI connection successful!');
+      console.log('\u2705 WPAPI connection successful!');
       console.log(`Found ${posts.length} posts`);
       console.log('First post title:', posts[0].title.rendered);
       return true;
     } else {
-      console.log('⚠️ WPAPI connected but no posts found');
+      console.log('\u26a0\ufe0f WPAPI connected but no posts found');
       return true; // Still a successful connection
     }
   } catch (error) {
-    console.error('❌ WPAPI connection failed:');
+    console.error('\u274c WPAPI connection failed:');
     console.error(error.message);
     return false;
   }
@@ -80,29 +110,37 @@ async function testWPAPI() {
 async function testCORS() {
   try {
     console.log('\n3. Testing CORS configuration...');
-    const response = await fetch(`${WP_SITE_URL}/wp-json/wp/v2/posts`, {
+    const options = {
       method: 'OPTIONS',
       headers: {
         'Origin': 'http://localhost:3000',
         'Access-Control-Request-Method': 'GET',
         'Access-Control-Request-Headers': 'Content-Type'
       }
-    });
+    };
     
-    const corsHeader = response.headers.get('access-control-allow-origin');
+    const response = await makeRequest(`${WP_SITE_URL}/wp-json/wp/v2/posts`, options);
+    
+    // Check for CORS headers
+    const corsHeader = response.headers['access-control-allow-origin'];
     
     if (corsHeader) {
-      console.log('✅ CORS is properly configured!');
+      console.log('\u2705 CORS is properly configured!');
       console.log(`CORS header: ${corsHeader}`);
       return true;
     } else {
-      console.warn('⚠️ CORS headers not detected in the response');
+      console.warn('\u26a0\ufe0f CORS headers not detected in the response');
       console.log('This might cause issues with browser access');
-      console.log('Headers received:', Object.fromEntries([...response.headers]));
+      // Convert headers to object manually for compatibility with older Node versions
+      const headersObj = {};
+      for (const key in response.headers) {
+        headersObj[key] = response.headers[key];
+      }
+      console.log('Headers received:', headersObj);
       return false;
     }
   } catch (error) {
-    console.error('❌ CORS test failed:');
+    console.error('\u274c CORS test failed:');
     console.error(error.message);
     return false;
   }
@@ -112,11 +150,11 @@ async function testCORS() {
 async function testCustomPostTypes() {
   try {
     console.log('\n4. Testing custom post types...');
-    const response = await fetch(`${WP_SITE_URL}/wp-json/wp/v2/types`);
+    const response = await makeRequest(`${WP_SITE_URL}/wp-json/wp/v2/types`);
     
-    if (response.status === 200) {
-      const types = await response.json();
-      console.log('✅ Successfully retrieved post types!');
+    if (response.statusCode === 200) {
+      const types = response.body;
+      console.log('\u2705 Successfully retrieved post types!');
       console.log('Available post types:');
       Object.keys(types).forEach(type => {
         if (type !== 'post' && type !== 'page' && type !== 'attachment') {
@@ -127,11 +165,11 @@ async function testCustomPostTypes() {
       });
       return true;
     } else {
-      console.error(`❌ Failed to get post types: ${response.status}`);
+      console.error(`\u274c Failed to get post types: ${response.statusCode}`);
       return false;
     }
   } catch (error) {
-    console.error('❌ Custom post types test failed:');
+    console.error('\u274c Custom post types test failed:');
     console.error(error.message);
     return false;
   }
@@ -151,13 +189,13 @@ async function runAllTests() {
   console.log('\n=======================================');
   console.log('           TEST RESULTS');  
   console.log('=======================================');
-  console.log(`Basic API Connection: ${basicResult ? '✅ PASS' : '❌ FAIL'}`);
-  console.log(`WPAPI Library: ${wpapiResult ? '✅ PASS' : '❌ FAIL'}`);
-  console.log(`CORS Configuration: ${corsResult ? '✅ PASS' : '⚠️ WARNING'}`);
-  console.log(`Custom Post Types: ${typesResult ? '✅ PASS' : '❌ FAIL'}`);
+  console.log(`Basic API Connection: ${basicResult ? '\u2705 PASS' : '\u274c FAIL'}`);
+  console.log(`WPAPI Library: ${wpapiResult ? '\u2705 PASS' : '\u274c FAIL'}`);
+  console.log(`CORS Configuration: ${corsResult ? '\u2705 PASS' : '\u26a0\ufe0f WARNING'}`);
+  console.log(`Custom Post Types: ${typesResult ? '\u2705 PASS' : '\u274c FAIL'}`);
   
   const overallStatus = basicResult && wpapiResult;
-  console.log('\nOverall Status:', overallStatus ? '✅ READY TO USE' : '❌ NEEDS ATTENTION');
+  console.log('\nOverall Status:', overallStatus ? '\u2705 READY TO USE' : '\u274c NEEDS ATTENTION');
   
   if (!overallStatus) {
     console.log('\nTroubleshooting tips:');
