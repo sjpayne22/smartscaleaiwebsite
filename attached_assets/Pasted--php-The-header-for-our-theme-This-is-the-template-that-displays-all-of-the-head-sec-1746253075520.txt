@@ -1,0 +1,65 @@
+<?php
+/**
+ * The header for our theme
+ *
+ * This is the template that displays all of the <head> section and everything up until <div id="content">
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-files/#template-layouts
+ *
+ * @package future
+ */
+
+$preloader_enable = cs_get_option( 'preloader_enable', true );
+$enable_scroll_up = cs_get_option( 'enable_scroll_up', true );
+$preloader_image = cs_get_option( 'preloader_image', get_template_directory_uri() . '/assets/img/icons/preloader.svg');
+if(isset($preloader_image['url'])) {
+    $image_url = $preloader_image['url'];
+} else {
+    $image_url = get_template_directory_uri() . '/assets/img/icons/preloader.svg';
+}
+
+?>
+
+<!doctype html>
+<html <?php if(function_exists('language_attributes')) {language_attributes();} ?> <?php if(function_exists('future_enable_rtl')) { print future_enable_rtl();} ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' );?>">
+    <?php if ( is_singular() && pings_open( get_queried_object() ) ): ?>
+    <?php endif;?>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<?php wp_head();?>
+	<base href=".">
+</head>
+
+<body <?php body_class();?>>
+<?php wp_body_open();?>
+
+<div class="page-wrapper">
+
+    <!-- preloader start -->
+    <?php if( $preloader_enable == true ) : ?>
+    <div id="tx-preloader" class="preloader"></div>
+    <?php endif; ?>
+    <!-- preloader end -->
+
+    <!-- back to top start -->
+    <?php if( $enable_scroll_up == true ) : ?>
+    <div class="scroll-to-top scroll-to-target" data-target="html"><span class="fas fa-arrow-up fa-fw"></span></div>
+    <?php endif; ?>
+    <!-- back to top end -->
+
+    <!-- header start -->
+    <?php do_action( 'future_header_style' );?>
+    <!-- header end -->
+
+    <!-- wrapper-box start -->
+    <?php do_action( 'future_before_main_content' );?>
+
+    <?php function_exists('future_search_popup_form') ? future_search_popup_form() : ''; ?>
+
+    <?php
+        if (FUTURE_WOOCOMMERCE_ACTIVED) {
+            function_exists('future_mini_cart') ? print future_mini_cart() : '';
+        }
+    ?>

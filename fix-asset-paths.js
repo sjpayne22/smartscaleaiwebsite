@@ -1,73 +1,178 @@
 /**
- * Script to fix asset paths in the built files
- * This converts absolute paths (/assets/) to relative paths (./assets/)
- * Also adds a base tag for GitHub Pages compatibility
+ * Universal Asset Path Fixer for SmartScale AI Website
+ *
+ * This script configures the built files for different deployment platforms:
+ * - GitHub Pages: Changes absolute paths to relative (./assets/) and adds <base href="."> tag
+ * - Vercel: Keeps absolute paths (/assets/) and adds <base href="/"> tag
+ *
+ * Usage:
+ * - For GitHub Pages: node fix-asset-paths.js github
+ * - For Vercel: node fix-asset-paths.js vercel
+ * - Default (no argument): GitHub Pages configuration
  */
 const fs = require('fs');
 const path = require('path');
 
-// Only try the dist path if the dist directory exists
-const distDir = path.join(__dirname, 'dist', 'public');
-if (fs.existsSync(distDir)) {
-  const indexHtmlPath = path.join(distDir, 'index.html');
-  console.log('Fixing asset paths in:', indexHtmlPath);
+// Determine deployment target
+const args = process.argv.slice(2);
+const deploymentTarget = args[0]?.toLowerCase() || 'github';
 
-  try {
-    // Read the index.html file
-    let indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
-    
-    // Replace absolute paths with relative paths
-    indexHtml = indexHtml.replace(/src="\/assets\//g, 'src="./assets/');
-    indexHtml = indexHtml.replace(/href="\/assets\//g, 'href="./assets/');
-    
-    // Add base tag for GitHub Pages
-    if (!indexHtml.includes('<base')) {
-      indexHtml = indexHtml.replace(
-        '<head>',
-        '<head>\n  <!-- Base tag for GitHub Pages --><base href=".">'  
-      );
-    }
-    
-    // Write the fixed index.html file
-    fs.writeFileSync(indexHtmlPath, indexHtml, 'utf8');
-    
-    console.log('Fixed asset paths in dist/public/index.html');
-  } catch (error) {
-    console.error('Error fixing asset paths in dist/public/index.html:', error);
-  }
+if (deploymentTarget !== 'github' && deploymentTarget !== 'vercel') {
+  console.warn(`Warning: Unknown deployment target '${deploymentTarget}'. Using 'github' as default.`);
 }
 
-// Always check the build directory
-const buildIndexHtmlPath = path.join(__dirname, 'build', 'index.html');
+// Configuration based on deployment target
+const config = {
+  github: {
+    baseHref: '.',
+    assetPathPrefix: './',
+    description: 'GitHub Pages'
+  },
+  vercel: {
+    baseHref: '/',
+    assetPathPrefix: '/',
+    description: 'Vercel'
+  }
+}[deploymentTarget] || config.github;
 
-if (fs.existsSync(buildIndexHtmlPath)) {
-  console.log('Fixing asset paths in:', buildIndexHtmlPath);
+console.log(`\nConfiguring assets for ${config.description} deployment...\n`);
+
+// Process a single HTML file
+function processHtmlFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    console.warn(`File not found: ${filePath}`);
+    return false;
+  }
+  
+  console.log(`Processing: ${filePath}`);
   
   try {
-    // Read the build/index.html file
-    let buildIndexHtml = fs.readFileSync(buildIndexHtmlPath, 'utf8');
+    // Read the HTML file
+    let htmlContent = fs.readFileSync(filePath, 'utf8');
     
-    // Replace absolute paths with relative paths
-    buildIndexHtml = buildIndexHtml.replace(/src="\/assets\//g, 'src="./assets/');
-    buildIndexHtml = buildIndexHtml.replace(/href="\/assets\//g, 'href="./assets/');
+    // Handle asset paths based on deployment target
+    if (deploymentTarget === 'github') {
+      // For GitHub Pages: convert absolute to relative paths
+      htmlContent = htmlContent.replace(/src="\/assets\//g, 'src="./assets/');
+      htmlContent = htmlContent.replace(/href="\/assets\//g, 'href="./assets/');
+    } else {
+      // For Vercel: ensure absolute paths
+      htmlContent = htmlContent.replace(/src="\.\/assets\//g, 'src="/assets/');
+      htmlContent = htmlContent.replace(/href="\.\/assets\//g, 'href="/assets/');
+    }
     
-    // Add a base tag for GitHub Pages to handle the repository name
-    const hasBaseTag = buildIndexHtml.includes('<base');
-    if (!hasBaseTag) {
-      // Add base tag right after the head tag
-      buildIndexHtml = buildIndexHtml.replace(
-        '<head>', 
-        '<head>\n  <!-- Base tag for GitHub Pages --><base href=".">'  
+    // Update or add base tag
+    if (htmlContent.includes('<base href=')) {
+      // Update existing base tag
+      htmlContent = htmlContent.replace(
+        /<base href="[^"]*">/,
+        `<base href="${config.baseHref}">`
+      );
+    } else {
+      // Add base tag if it doesn't exist
+      htmlContent = htmlContent.replace(
+        '<head>',
+        `<head>\n  <!-- Base tag for ${config.description} deployment --><base href="${config.baseHref}">`
       );
     }
     
-    // Write the fixed index.html file
-    fs.writeFileSync(buildIndexHtmlPath, buildIndexHtml, 'utf8');
+    // Add deployment indicator
+    if (!htmlContent.includes(`data-deployment="${deploymentTarget}"`)) {
+      htmlContent = htmlContent.replace(
+        '<html',
+        `<html data-deployment="${deploymentTarget}"`
+      );
+    }
     
-    console.log('Fixed asset paths in build/index.html');
+    // Write the modified HTML file
+    fs.writeFileSync(filePath, htmlContent, 'utf8');
+    console.log(`✅ Successfully configured ${filePath} for ${config.description}`);
+    return true;
   } catch (error) {
-    console.error('Error fixing asset paths in build/index.html:', error);
+    console.error(`❌ Error processing ${filePath}:`, error.message);
+    return false;
   }
 }
 
-console.log('Asset path fixing complete!');
+// Process all relevant HTML files
+function processAllFiles() {
+  let successCount = 0;
+  let failCount = 0;
+  
+  // Check Vite build directory
+  const distDir = path.join(__dirname, 'dist');
+  const distPublicDir = path.join(distDir, 'public');
+  const distIndexPath = path.join(distPublicDir, 'index.html');
+  
+  if (fs.existsSync(distIndexPath)) {
+    processHtmlFile(distIndexPath) ? successCount++ : failCount++;
+  } else if (fs.existsSync(distDir)) {
+    const distIndexAltPath = path.join(distDir, 'index.html');
+    if (fs.existsSync(distIndexAltPath)) {
+      processHtmlFile(distIndexAltPath) ? successCount++ : failCount++;
+    }
+  }
+  
+  // Check React build directory
+  const buildDir = path.join(__dirname, 'build');
+  const buildIndexPath = path.join(buildDir, 'index.html');
+  
+  if (fs.existsSync(buildIndexPath)) {
+    processHtmlFile(buildIndexPath) ? successCount++ : failCount++;
+  }
+  
+  // Process 404.html for GitHub Pages if it exists
+  if (deploymentTarget === 'github') {
+    const notFoundPath = path.join(__dirname, 'build', '404.html');
+    if (fs.existsSync(notFoundPath)) {
+      processHtmlFile(notFoundPath) ? successCount++ : failCount++;
+    }
+  }
+  
+  // Create deployment indicator file
+  try {
+    const deploymentIndicator = {
+      target: deploymentTarget,
+      configuredAt: new Date().toISOString(),
+      baseHref: config.baseHref,
+      assetPrefix: config.assetPathPrefix
+    };
+    
+    if (fs.existsSync(buildDir)) {
+      fs.writeFileSync(
+        path.join(buildDir, 'deployment-config.json'),
+        JSON.stringify(deploymentIndicator, null, 2),
+        'utf8'
+      );
+    }
+  } catch (error) {
+    console.warn('Could not write deployment indicator file:', error.message);
+  }
+  
+  return { successCount, failCount };
+}
+
+// Run the processor
+const { successCount, failCount } = processAllFiles();
+
+console.log('\n====================================');
+console.log(`Deployment Configuration Summary:`);
+console.log('====================================');
+console.log(`Target:      ${config.description}`);
+console.log(`Base Href:   ${config.baseHref}`);
+console.log(`Asset Path:  ${config.assetPathPrefix}assets/`);
+console.log(`Success:     ${successCount} file(s)`);
+console.log(`Failed:      ${failCount} file(s)`);
+console.log('====================================\n');
+
+if (successCount === 0) {
+  console.error('❌ No files were processed. Make sure your build directories exist.');
+  process.exit(1);
+} else if (failCount > 0) {
+  console.warn(`⚠️ ${failCount} file(s) failed to process.`);
+  process.exit(1);
+} else {
+  console.log(`✅ Assets successfully configured for ${config.description} deployment!`);
+  console.log(`   You can now deploy your ${deploymentTarget === 'github' ? 'GitHub Pages' : 'Vercel'} project.`);
+}
+

@@ -1,204 +1,205 @@
 /**
- * Custom build script for SmartScale AI Website
+ * SmartScale AI Website Build Script
+ * 
+ * This script builds the website for different deployment targets:
+ * - GitHub Pages
+ * - Vercel
+ * 
+ * Usage:
+ * - node build.js github   # Build for GitHub Pages
+ * - node build.js vercel   # Build for Vercel
+ * - node build.js          # Build for GitHub Pages (default)
  */
+
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('Building SmartScale AI Website...');
+// Determine deployment target
+const args = process.argv.slice(2);
+const deploymentTarget = args[0]?.toLowerCase() || 'github';
 
-// Run the standard Vite build
-try {
-  console.log('Running Vite build...');
-  execSync('npx vite build', { stdio: 'inherit' });
-} catch (error) {
-  console.error('Build failed:', error);
-  process.exit(1);
+if (deploymentTarget !== 'github' && deploymentTarget !== 'vercel') {
+  console.warn(`Warning: Unknown deployment target '${deploymentTarget}'. Using 'github' as default.`);
 }
 
-console.log('Build completed successfully!');
+console.log('====================================');
+console.log(`Building for: ${deploymentTarget === 'github' ? 'GitHub Pages' : 'Vercel'}`);
+console.log('====================================\n');
 
-// Function to fix the index.html file
-function fixIndexHtml() {
-  console.log('Fixing index.html for production...');
+// Clean build directory
+function cleanBuild() {
+  console.log('Cleaning build directory...');
+  try {
+    if (fs.existsSync('build')) {
+      // On Windows
+      if (process.platform === 'win32') {
+        execSync('rmdir /s /q build', { stdio: 'inherit' });
+      } else {
+        // On Unix-like systems
+        execSync('rm -rf build', { stdio: 'inherit' });
+      }
+    }
+    console.log('\u2705 Build directory cleaned');
+    return true;
+  } catch (error) {
+    console.error('\u274c Failed to clean build directory:', error.message);
+    return false;
+  }
+}
+
+// Run the standard build process
+function runBuild() {
+  console.log('\nRunning build process...');
+  try {
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log('\u2705 Build completed successfully');
+    return true;
+  } catch (error) {
+    console.error('\u274c Build failed:', error.message);
+    return false;
+  }
+}
+
+// Fix asset paths based on deployment target
+function fixAssetPaths() {
+  console.log('\nFixing asset paths...');
+  try {
+    execSync(`node fix-asset-paths.js ${deploymentTarget}`, { stdio: 'inherit' });
+    console.log(`\u2705 Asset paths fixed for ${deploymentTarget}`);
+    return true;
+  } catch (error) {
+    console.error(`\u274c Failed to fix asset paths for ${deploymentTarget}:`, error.message);
+    return false;
+  }
+}
+
+// Create 404.html for GitHub Pages (only for GitHub Pages)
+function create404Page() {
+  if (deploymentTarget !== 'github') {
+    return true; // Skip for non-GitHub Pages deployments
+  }
   
-  const indexPath = path.join(__dirname, 'build', 'index.html');
+  console.log('\nCreating 404.html for GitHub Pages...');
+  
+  const indexPath = path.join('build', 'index.html');
+  const notFoundPath = path.join('build', '404.html');
   
   if (!fs.existsSync(indexPath)) {
-    console.error('Error: build/index.html not found!');
-    return;
+    console.error('\u274c Could not find build/index.html');
+    return false;
   }
   
-  let html = fs.readFileSync(indexPath, 'utf8');
-  
-  // Remove any duplicate asset references
-  const scriptMatches = html.match(/<script[^>]*src="[^"]*\.js"[^>]*>/g) || [];
-  const styleMatches = html.match(/<link[^>]*href="[^"]*\.css"[^>]*>/g) || [];
-  
-  if (scriptMatches.length > 1) {
-    console.log('Found duplicate script tags, fixing...');
-    html = html.replace(scriptMatches.slice(1).join('\n'), '');
+  try {
+    // Copy index.html to 404.html
+    fs.copyFileSync(indexPath, notFoundPath);
+    console.log('\u2705 404.html created for GitHub Pages');
+    return true;
+  } catch (error) {
+    console.error('\u274c Failed to create 404.html:', error.message);
+    return false;
   }
-  
-  if (styleMatches.length > 1) {
-    console.log('Found duplicate style tags, fixing...');
-    html = html.replace(styleMatches.slice(1).join('\n'), '');
-  }
-  
-  // Write the fixed HTML back to the file
-  fs.writeFileSync(indexPath, html);
-  console.log('index.html fixed successfully!');
 }
 
-// Function to create a proper .htaccess file
-function createHtaccess() {
-  console.log('Creating .htaccess file for production...');
+// Run Vercel-specific post-processing
+function runVercelPostProcessing() {
+  if (deploymentTarget !== 'vercel') {
+    return true; // Skip for non-Vercel deployments
+  }
   
-  const htaccessPath = path.join(__dirname, 'build', '.htaccess');
-  const htaccessContent = `# .htaccess file for React single-page application
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  
-  # Handle client-side routing
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L,QSA]
-</IfModule>
-
-# Enable GZIP compression
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json
-</IfModule>
-
-# Enable CORS
-Header set Access-Control-Allow-Origin "*"
-
-# Set browser caching
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType image/jpg "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/gif "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-</IfModule>
-
-# Security headers
-<IfModule mod_headers.c>
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-XSS-Protection "1; mode=block"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-</IfModule>
-
-# Redirect HTTP to HTTPS
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>`;
-  
-  fs.writeFileSync(htaccessPath, htaccessContent);
-  console.log('.htaccess file created successfully!');
+  console.log('\nRunning Vercel-specific post-processing...');
+  try {
+    execSync('node build-vercel.js', { stdio: 'inherit' });
+    console.log('\u2705 Vercel post-processing completed');
+    return true;
+  } catch (error) {
+    console.error('\u274c Vercel post-processing failed:', error.message);
+    return false;
+  }
 }
 
-// Create a GitHub Pages compatible 404.html
-function create404Html() {
-  console.log('Creating 404.html for GitHub Pages...');
+// Create a root index.html for GitHub Pages
+function createRootIndex() {
+  if (deploymentTarget !== 'github') {
+    return true; // Skip for non-GitHub Pages deployments
+  }
   
-  const html404Path = path.join(__dirname, 'build', '404.html');
-  const html404Content = `<!DOCTYPE html>
+  console.log('\nCreating root index.html for GitHub Pages...');
+  
+  const rootIndexPath = path.join(__dirname, 'index.html');
+  
+  try {
+    const rootIndexContent = `<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>SmartScale AI</title>
-  <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // MIT License
-    // https://github.com/rafgraph/spa-github-pages
-    // This needs to match your GitHub Pages repository name
-    var repoName = "smartscaaleai-website";
-    var segmentCount = 1; // Adjust based on your GitHub Pages structure
-    var l = window.location;
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-      l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-      (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-      l.hash
-    );
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=./build/index.html">
+  <title>SmartScale AI - Redirecting...</title>
+  <script>
+    window.location.href = "./build/index.html";
   </script>
 </head>
 <body>
+  If you are not redirected automatically, please <a href="./build/index.html">click here</a>.
 </body>
-</html>`;
-  
-  fs.writeFileSync(html404Path, html404Content);
-  console.log('404.html created successfully!');
+</html>
+`;
+    
+    fs.writeFileSync(rootIndexPath, rootIndexContent, 'utf8');
+    console.log('\u2705 Root index.html created for GitHub Pages');
+    return true;
+  } catch (error) {
+    console.error('\u274c Failed to create root index.html:', error.message);
+    return false;
+  }
 }
 
-// Create GitHub Pages compatible root index.html
-function createRootIndex() {
-  console.log('Creating root index.html for GitHub Pages...');
+// Run the build process
+(async function() {
+  let success = true;
   
-  const rootIndexPath = path.join(__dirname, 'index.html');
-  const buildIndexPath = path.join(__dirname, 'build', 'index.html');
+  // Clean build directory
+  success = cleanBuild() && success;
   
-  if (!fs.existsSync(buildIndexPath)) {
-    console.error('Error: build/index.html not found!');
-    return;
+  // Run build process
+  success = runBuild() && success;
+  
+  if (!success) {
+    console.error('\n\u274c Build failed. Please fix the errors and try again.');
+    process.exit(1);
   }
   
-  // Read the built index.html
-  let buildHtml = fs.readFileSync(buildIndexPath, 'utf8');
+  // Fix asset paths
+  success = fixAssetPaths() && success;
   
-  // Modify the paths to point to the build directory for GitHub Pages
-  let rootHtml = buildHtml
-    .replace(/src=\"\//g, 'src=\"./build/')
-    .replace(/href=\"\//g, 'href=\"./build/')
-    .replace(/<\/head>/, `
-  <!-- Single Page Apps for GitHub Pages -->
-  <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // MIT License
-    // https://github.com/rafgraph/spa-github-pages
-    (function(l) {
-      if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(function(s) { 
-          return s.replace(/~and~/g, '&')
-        }).join('?');
-        window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
-        );
-      }
-      
-      // Also handle redirect from GitHub Pages 404 page
-      // Special handling for p and q params from the 404.html redirect
-      if (l.search.includes('?p=')) {
-        const urlParams = new URLSearchParams(l.search);
-        const redirectPath = urlParams.get('p');
-        const queryParams = urlParams.get('q');
-        const finalPath = redirectPath + (queryParams ? '?' + queryParams : '') + l.hash;
-        
-        window.history.replaceState(null, null, finalPath);
-      }
-    }(window.location))
-  </script>
-</head>`);
+  // Create 404.html for GitHub Pages
+  success = create404Page() && success;
   
-  fs.writeFileSync(rootIndexPath, rootHtml);
-  console.log('Root index.html created successfully!');
-}
-
-// Execute all the functions
-fixIndexHtml();
-createHtaccess();
-create404Html();
-createRootIndex();
-
-console.log('Post-build processing completed! Your website is ready for deployment.');
+  // Run Vercel-specific post-processing
+  success = runVercelPostProcessing() && success;
+  
+  // Create root index.html for GitHub Pages
+  success = createRootIndex() && success;
+  
+  if (success) {
+    console.log('\n====================================');
+    console.log(`\u2705 Build successful for ${deploymentTarget === 'github' ? 'GitHub Pages' : 'Vercel'}!`);
+    console.log('====================================');
+    
+    if (deploymentTarget === 'github') {
+      console.log('\nNext steps for GitHub Pages:');
+      console.log('1. Commit and push the changes to your repository');
+      console.log('2. Configure GitHub Pages in your repository settings');
+      console.log('3. Set the GitHub Pages source to the main branch');
+    } else {
+      console.log('\nNext steps for Vercel:');
+      console.log('1. Deploy to Vercel using one of these methods:');
+      console.log('   - Run: vercel --prod');
+      console.log('   - Upload the build directory to Vercel');
+      console.log('2. Configure your custom domain in Vercel settings');
+    }
+  } else {
+    console.error('\n\u274c Build process completed with errors.');
+    process.exit(1);
+  }
+})();
