@@ -13,8 +13,8 @@ console.log('Building for Vercel deployment...');
 // Make sure we're using absolute paths for Vercel
 console.log('\n1. Running normal build process...');
 try {
-  // Run the standard Vite build
-  execSync('npm run build', { stdio: 'inherit' });
+  // Run the standard Vite build directly instead of using npm script
+  execSync('npx vite build', { stdio: 'inherit' });
   console.log('✅ Build completed successfully');
 } catch (error) {
   console.error('❌ Build failed:', error.message);
