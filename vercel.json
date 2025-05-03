@@ -41,5 +41,6 @@
     "env": {
       "NODE_ENV": "production"
     }
-  }
+  },
+  "buildCommand": "node vercel-build.js"
 }

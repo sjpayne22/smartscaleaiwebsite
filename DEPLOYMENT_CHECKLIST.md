@@ -1,107 +1,87 @@
-# SmartScale AI Website Deployment Checklist
+# Deployment Checklist for SmartScale AI Website
 
-Use this checklist to ensure your website is properly deployed to both GitHub Pages and Vercel.
+Use this checklist to ensure successful deployment of the SmartScale AI website to either GitHub Pages or Vercel.
 
-## Prerequisites
+## Pre-Deployment
 
-- [ ] Node.js and npm installed
-- [ ] Git installed and configured
-- [ ] GitHub repository access
-- [ ] Vercel account created
-- [ ] WordPress.com site with REST API configured
-- [ ] Domain name (smartscaleai.ai) ready to configure
-- [ ] Cloudflare account for DNS management
-
-## WordPress Headless CMS Setup
-
-- [ ] Install and activate required WordPress plugins:
-  - [ ] Custom Post Types UI
-  - [ ] Advanced Custom Fields
-  - [ ] REST API Filter Fields
-  - [ ] JWT Authentication for WP REST API (if using authentication)
-- [ ] Configure CORS to allow cross-origin requests:
-  ```php
-  add_action('init', function() {
-      header("Access-Control-Allow-Origin: *");
-      header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-      header("Access-Control-Allow-Headers: Content-Type, Authorization");
-  });
-  ```
-- [ ] Create necessary custom post types and fields
-- [ ] Add sample content for testing
-- [ ] Verify API access: `https://yoursitename.wordpress.com/wp-json/wp/v2/posts`
-
-## Local Build Testing
-
-- [ ] Run `npm run build` to create a production build
-- [ ] Test the build locally to verify all routes and assets load correctly
-- [ ] Check for console errors related to WordPress API connections
-- [ ] Verify WordPress content is loading correctly
+- [ ] All code changes are committed and pushed to the repository
+- [ ] Website has been tested locally and all features are working
+- [ ] WordPress API connection has been tested and is working correctly
+- [ ] No console errors appear in the browser developer tools
+- [ ] Website is responsive on all tested device sizes
+- [ ] All images and assets are optimized for web
+- [ ] SEO meta tags are properly set in index.html
 
 ## GitHub Pages Deployment
 
-- [ ] Run build process: `npm run build`
-- [ ] Fix asset paths: `node fix-asset-paths.js`
-- [ ] Verify the build directory content:
-  - [ ] index.html has `<base href=".">` tag
-  - [ ] Asset paths use relative references (./assets/)
-  - [ ] 404.html is properly configured for SPA routing
-- [ ] Push the build directory to GitHub Pages branch (gh-pages)
-- [ ] Configure GitHub repository settings for GitHub Pages deployment
-- [ ] Verify the live GitHub Pages site functions correctly
+- [ ] Use the GitHub Pages build script:
+      ```bash
+      node build.js github
+      ```
+      or
+      ```bash
+      node deploy-github.js
+      ```
+- [ ] Verify that asset paths use relative references (`./assets/`)
+- [ ] Verify `<base href="./">` is present in the HTML
+- [ ] Custom domain is configured in GitHub repository settings (if applicable)
+- [ ] HTTPS is enforced in GitHub Pages settings
 
 ## Vercel Deployment
 
-- [ ] Run build process: `npm run build`
-- [ ] Run Vercel build script: `node build-vercel.js`
-- [ ] Verify the build directory content:
-  - [ ] index.html has `<base href="/">` tag (absolute paths)
-  - [ ] vercel.json is copied to the build directory
-  - [ ] _redirects file is created
-  - [ ] server.js is created
-- [ ] Deploy to Vercel using one of these methods:
-  - [ ] Vercel CLI: `vercel --prod`
-  - [ ] Vercel Dashboard: Create new project and import from GitHub
-- [ ] Configure Vercel environment variables if needed
-- [ ] Add custom domain in Vercel settings
-- [ ] Update DNS settings in Cloudflare
+- [ ] Use the Vercel build script:
+      ```bash
+      node vercel-build.js
+      ```
+      or
+      ```bash
+      node deploy-vercel.js
+      ```
+- [ ] Verify that asset paths use absolute references (`/assets/`)
+- [ ] Verify `<base href="/">` is present in the HTML
+- [ ] The `vercel.json` configuration file is included in the build
+- [ ] Environment variables are configured in the Vercel dashboard (if applicable)
+- [ ] Custom domain is configured in the Vercel dashboard (if applicable)
 
-## Post-Deployment Verification
+## Post-Deployment
 
-- [ ] Test all site navigation and routes
-- [ ] Verify WordPress content loads correctly
-- [ ] Check responsive design on mobile, tablet, and desktop
-- [ ] Verify contact form submissions work
-- [ ] Confirm blog posts and insights load correctly
-- [ ] Test WebSocket chat functionality
-- [ ] Run a Lighthouse audit to check performance
-- [ ] Verify analytics integration if applicable
+- [ ] Test all website navigation and features on the live site
+- [ ] Verify WordPress API integration is working on the deployed site
+- [ ] Test form submissions on the live site
+- [ ] Verify all links are working correctly
+- [ ] Check that analytics is tracking properly (if applicable)
+- [ ] Test chatbot functionality on the live site
+- [ ] Verify the site is secure (HTTPS only)
+- [ ] Test website performance using tools like Lighthouse
+- [ ] Verify the site has proper cache headers for assets
 
-## Common Issues and Solutions
+## WordPress Configuration
 
-### GitHub Pages
+- [ ] WordPress REST API endpoints are accessible from the deployed domain
+- [ ] CORS headers are properly configured on the WordPress server
+- [ ] Custom post types and fields are accessible via the API
+- [ ] JWT authentication is working correctly (if applicable)
+- [ ] WordPress permalinks are set to "Post name" (/sample-post/)
 
-- **404 errors when navigating:** Make sure 404.html has proper redirect code
-- **Missing styles or scripts:** Check that asset paths use relative paths (./assets/)
-- **Blank page on load:** Verify that the base tag is properly set
+## DNS & Domain Configuration
 
-### Vercel
+- [ ] DNS records are properly configured for the custom domain
+- [ ] CNAME records are set up correctly for GitHub Pages or Vercel
+- [ ] A records point to the correct IP addresses
+- [ ] Domain has proper SSL/TLS certificate
+- [ ] www subdomain redirects to the main domain (or vice versa)
 
-- **API connectivity issues:** Check CORS settings on WordPress
-- **Client-side routing failures:** Verify vercel.json rewrites are correct
-- **Missing environment variables:** Add them in Vercel project settings
-- **Domain connection issues:** Verify DNS settings in Cloudflare
+## Rollback Plan
 
-### WordPress API
+In case of deployment issues:
 
-- **Authentication failures:** Check JWT configuration
-- **Missing custom fields:** Verify they're exposed in the REST API
-- **CORS errors:** Ensure proper CORS headers are set on WordPress
+1. For GitHub Pages: Revert to the previous successful commit and redeploy
+2. For Vercel: Use the Vercel dashboard to roll back to a previous deployment
+3. For critical issues: Temporarily point the domain to a maintenance page
 
-## Resources
+## Contact Information
 
-- [Vercel Documentation](https://vercel.com/docs)
-- [GitHub Pages Documentation](https://docs.github.com/en/pages)
-- [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/)
-- [Cloudflare DNS Documentation](https://developers.cloudflare.com/dns/)
-- [Vite Documentation](https://vitejs.dev/guide/)
+If you encounter deployment issues, contact:
+
+- Stanley Payne (stanley@smartscaleai.ai)
+- Technical Support (support@smartscaleai.ai)

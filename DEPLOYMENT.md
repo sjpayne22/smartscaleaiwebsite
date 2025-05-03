@@ -1,109 +1,139 @@
 # SmartScale AI Website Deployment Guide
 
-This document provides instructions for deploying the SmartScale AI website to a web hosting service like HostGator.
+## Overview
 
-## Deployment Files
+This document provides detailed instructions for deploying the SmartScale AI website. The site can be deployed to two primary environments:
 
-The application has been built and the production files are located in the `dist` directory:
+1. **GitHub Pages**: Used for development, testing, and staging
+2. **Vercel**: Used for production at smartscaleai.ai
 
-- `dist/public/` - Contains all static frontend files (HTML, CSS, JavaScript, images)
-- `dist/index.js` - The server-side Node.js application
+Each deployment target requires specific configuration to ensure proper functionality.
+
+## Prerequisites
+
+Before deployment, ensure you have:
+
+- Node.js installed (version 14 or later)
+- Access to the GitHub repository
+- Vercel account (for production deployment)
+- All code changes committed and pushed
 
 ## Deployment Options
 
-### Option 1: Static Site Deployment (Frontend Only)
+### GitHub Pages Deployment
 
-If you wish to deploy just the frontend and handle the backend separately (e.g., WordPress API is hosted elsewhere):
+GitHub Pages is used for development and testing. Follow these steps to deploy:
 
-1. Upload the contents of the `dist/public/` directory to the web root of your hosting service.
-2. Configure `.htaccess` for client-side routing:
+1. **Build the project for GitHub Pages**:
 
+   ```bash
+   node build.js github
+   ```
+
+   This script will:
+   - Build the React application
+   - Fix asset paths to use relative references (`./assets/`)
+   - Add a proper base tag to the HTML
+   - Create a 404.html page that redirects to index.html
+
+2. **Deploy using the automated script**:
+
+   ```bash
+   node deploy-github.js
+   ```
+
+   This will build and deploy the site to GitHub Pages in one step.
+
+3. **Verify the deployment**:
+   - Check that the site is accessible at your GitHub Pages URL
+   - Test all features and navigation
+   - Verify WordPress API integration
+
+Refer to [GITHUB_PAGES.md](GITHUB_PAGES.md) for detailed GitHub Pages deployment information.
+
+### Vercel Deployment (Production)
+
+Vercel is used for the production site at smartscaleai.ai. Follow these steps to deploy:
+
+1. **Build the project for Vercel**:
+
+   ```bash
+   node vercel-build.js
+   ```
+
+   This script will:
+   - Build the React application
+   - Fix asset paths to use absolute references (`/assets/`)
+   - Add a proper base tag to the HTML
+   - Copy the Vercel configuration to the build directory
+
+2. **Deploy using the automated script**:
+
+   ```bash
+   node deploy-vercel.js
+   ```
+
+   This will build and deploy the site to Vercel in one step.
+
+3. **Verify the deployment**:
+   - Check that the site is accessible at the Vercel URL provided
+   - Test all features and navigation
+   - Verify WordPress API integration
+
+Refer to [DEPLOY_TO_VERCEL.md](DEPLOY_TO_VERCEL.md) for detailed Vercel deployment information.
+
+## Critical Deployment Files
+
+### Configuration Files
+
+- **vercel.json**: Contains configuration for Vercel deployment
+- **404.html**: Handles SPA routing for GitHub Pages
+- **index.html**: The main entry point for the application
+
+### Deployment Scripts
+
+- **build.js**: Builds the project for any deployment target
+- **build-vercel.js**: Special build script for Vercel
+- **deploy-github.js**: Automates GitHub Pages deployment
+- **deploy-vercel.js**: Automates Vercel deployment
+- **fix-asset-paths.js**: Fixes asset references based on deployment target
+- **fix-html-file.js**: Ensures HTML files have correct base tags and paths
+
+## WordPress Integration
+
+The website connects to WordPress.com as a headless CMS. Ensure the WordPress API is properly configured:
+
+1. CORS headers are set up
+2. Custom post types are available through the API
+3. Authentication is working correctly (if used)
+
+Test the WordPress connection with the diagnostic tool:
+
+```bash
+node check-wordpress-connection.js
 ```
-# .htaccess file for React single-page application
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
-</IfModule>
-```
-
-### Option 2: Full-Stack Deployment (Frontend + Backend)
-
-If you want to deploy both the frontend and backend together:
-
-1. Ensure your hosting service supports Node.js applications.
-2. Upload the entire `dist/` directory to your hosting service.
-3. Install dependencies using npm:
-   ```
-   npm install express ws
-   ```
-4. Start the server:
-   ```
-   node dist/index.js
-   ```
-5. Configure your hosting service to run the Node.js application (varies by provider).
-
-## WordPress Headless CMS Configuration
-
-Since you're using WordPress as a headless CMS:
-
-1. Ensure your WordPress installation has the necessary plugins:
-   - WP REST API
-   - JWT Authentication for WP REST API (if using JWT)
-   - Custom Post Types UI (for services, testimonials, etc.)
-   - Advanced Custom Fields (for extended content)
-
-2. Enable CORS in your WordPress site to allow API requests from your frontend domain:
-   - Add the following to your WordPress theme's `functions.php`:
-
-```php
-add_action('init', function() {
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    
-    if ('OPTIONS' == $_SERVER['REQUEST_METHOD']) {
-        status_header(200);
-        exit();
-    }
-});
-```
-
-3. Update the API URLs in your React application to point to your WordPress site.
-
-## SSL Configuration
-
-For secure HTTPS connections:
-
-1. Obtain an SSL certificate for your domain (many hosting providers offer free Let's Encrypt certificates).
-2. Enable HTTPS in your hosting control panel.
-3. Configure your site to redirect HTTP to HTTPS.
-
-## Domain Configuration
-
-To set up your custom domain (smartscaleai.ai):
-
-1. Purchase the domain (if not already owned).
-2. Update your DNS settings to point to your hosting provider.
-3. Configure the domain in your hosting control panel.
-
-## Post-Deployment Verification
-
-After deployment, verify:
-
-1. All pages load correctly.
-2. The contact form submits successfully.
-3. The blog posts load from the WordPress API.
-4. The chatbot works in both modes (local and WebSocket).
-5. All images and assets load properly.
-6. The site works on mobile, tablet, and desktop devices.
 
 ## Troubleshooting
 
-- If static assets don't load, check path references in the HTML/CSS.
-- If API calls fail, verify CORS configuration and API endpoint URLs.
-- For WebSocket issues, ensure your hosting provider supports WebSocket connections.
+### Common Issues
+
+1. **Asset loading failures**: Usually related to incorrect path references. Check for correct base tag and asset paths.
+2. **SPA routing issues**: If page refreshes result in 404 errors, ensure proper redirect configurations are in place.
+3. **API connectivity problems**: Verify CORS settings on the WordPress installation.
+
+### Log Files
+
+Both GitHub Pages and Vercel provide deployment logs that can help diagnose issues:
+
+- Check GitHub Actions logs for GitHub Pages deployments
+- Check the Vercel dashboard for production deployment logs
+
+## Deployment Checklist
+
+Use the [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) document to ensure all deployment steps are completed correctly.
+
+## Additional Resources
+
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Vercel Documentation](https://vercel.com/docs)
+- [WordPress REST API Documentation](https://developer.wordpress.org/rest-api/)
