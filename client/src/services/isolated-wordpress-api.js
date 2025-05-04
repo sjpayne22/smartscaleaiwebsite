@@ -8,7 +8,7 @@
 import axios from 'axios';
 
 // WordPress API URL - Same as in the original wordpressApi.js
-const WP_API_URL = 'https://smartscaleai.wordpress.com/wp-json/wp/v2';
+const WP_API_URL = 'https://blog.smartscaleai.ai/wp-json/wp/v2';
 
 // Timeout for WordPress API requests (5 seconds)
 const API_TIMEOUT = 5000;

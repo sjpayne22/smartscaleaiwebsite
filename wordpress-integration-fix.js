@@ -7,7 +7,7 @@
 
 (function() {
   // WordPress API URL
-  const WP_API_URL = 'https://smartscaleai.wordpress.com/wp-json/wp/v2';
+  const WP_API_URL = 'https://blog.smartscaleai.ai/wp-json/wp/v2';
   
   // Configuration
   const CONFIG = {

@@ -3,7 +3,7 @@ import WPAPI from 'wpapi';
 
 // Using WordPress.com site as the headless CMS
 // Replace with your actual WordPress.com site URL
-const WP_API_URL = import.meta.env.VITE_WP_API_URL || 'https://yoursitename.wordpress.com/wp-json/wp/v2';
+const WP_API_URL = import.meta.env.VITE_WP_API_URL || 'https://blog.smartscaleai.ai/wp-json/wp/v2';
 
 // Initialize the WordPress API client
 let wp;
