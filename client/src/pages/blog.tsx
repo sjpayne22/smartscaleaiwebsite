@@ -6,9 +6,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Tag, User, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { fetchPosts } from "../services/wordpressApi";
+// Import the isolated WordPress API instead of the original one
+import { fetchPostsSafely } from "../services/isolated-wordpress-api";
 import { InsightPost, allBlogPosts } from "../lib/blog-data"; // Keep for types and fallback data
 import { cn } from "@/lib/utils";
+// Import the isolated WordPress content component
+import IsolatedWordPressContent from "../components/ui/IsolatedWordPressContent";
 
 // List of categories for filtering
 const categories = [
@@ -32,18 +35,14 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch posts from WordPress
+  // Fetch posts from WordPress using the isolated API
   useEffect(() => {
     const loadPosts = async () => {
       try {
         setLoading(true);
-        const fetchedPosts = await fetchPosts();
-        if (fetchedPosts && fetchedPosts.length > 0) {
-          setPosts(fetchedPosts);
-        } else {
-          // Fallback to local data if no posts are returned or if API fails
-          setPosts(allBlogPosts);
-        }
+        // Use the isolated API with fallback data
+        const fetchedPosts = await fetchPostsSafely({}, allBlogPosts);
+        setPosts(fetchedPosts);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch posts:', err);
@@ -224,10 +223,11 @@ export default function Blog() {
                 
                   {/* Scrollable content area */}
                   <div className="overflow-y-auto pr-2 mt-4 max-h-[calc(90vh-250px)]">
-                    {/* Introduction */}
-                    <p className="text-gray-600 mb-6 leading-relaxed">
-                      {insight.detailedContent.introText}
-                    </p>
+                    {/* Introduction - Using isolated WordPress content component */}
+                    <IsolatedWordPressContent 
+                      content={insight.detailedContent.introText}
+                      className="text-gray-600 mb-6 leading-relaxed"
+                    />
                     
                     {/* Content sections */}
                     <div className="space-y-6">
@@ -236,9 +236,11 @@ export default function Blog() {
                           <h3 className={`text-xl font-semibold mb-3 ${colorClass}`}>
                             {section.heading}
                           </h3>
-                          <p className="text-gray-600 mb-3 leading-relaxed">
-                            {section.content}
-                          </p>
+                          {/* Using isolated WordPress content component */}
+                          <IsolatedWordPressContent 
+                            content={section.content}
+                            className="text-gray-600 mb-3 leading-relaxed"
+                          />
                           
                           {section.bulletPoints && (
                             <ul className="space-y-2 mt-3">
@@ -261,9 +263,11 @@ export default function Blog() {
                       <h3 className={`text-xl font-semibold mb-2 ${colorClass}`}>
                         Conclusion
                       </h3>
-                      <p className="text-gray-600 leading-relaxed">
-                        {insight.detailedContent.conclusion}
-                      </p>
+                      {/* Using isolated WordPress content component */}
+                      <IsolatedWordPressContent 
+                        content={insight.detailedContent.conclusion}
+                        className="text-gray-600 leading-relaxed"
+                      />
                     </div>
                   </div>
                   

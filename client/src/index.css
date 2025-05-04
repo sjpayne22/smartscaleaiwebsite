@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* WordPress content isolation styles */
+@import "./css/wordpress-isolation.css";
+
 /* Global CSS Variables */
 :root {
   --background: 0 0% 100%;

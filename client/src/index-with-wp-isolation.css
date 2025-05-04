@@ -1,0 +1,4 @@
+/* Add this at the top of your existing index.css */
+@import "./css/wordpress-isolation.css";
+
+/* Rest of your original index.css content would go here */

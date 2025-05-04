@@ -1,0 +1,145 @@
+/**
+ * WordPress Content Isolation Styles
+ * 
+ * These styles ensure WordPress content doesn't affect the main site styling.
+ * Include this file in your main CSS imports.
+ */
+
+/* Add a global class to the body when WordPress content is loaded */
+body.wp-content-loaded {
+  /* Ensure main site styles take precedence */
+  --wp-loaded: true;
+}
+
+/* Isolated WordPress content container */
+.wp-content-container {
+  /* Create a new stacking context to prevent style leakage */
+  isolation: isolate;
+  /* Contain layout, style, and paint operations */
+  contain: content;
+  /* Ensure proper box model */
+  box-sizing: border-box;
+  /* Give the container some basic styling */
+  padding: 1rem;
+  margin: 0;
+  width: 100%;
+  /* Inherit the main site's text styling */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Reset all elements inside the WordPress container */
+.wp-content-container * {
+  /* Reset to browser defaults */
+  all: revert;
+  /* Ensure proper box model */
+  box-sizing: border-box;
+}
+
+/* Ensure images are properly scaled */
+.wp-content-container img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+/* Style WordPress headings to match site */
+.wp-content-container h1,
+.wp-content-container h2,
+.wp-content-container h3,
+.wp-content-container h4,
+.wp-content-container h5,
+.wp-content-container h6 {
+  font-family: inherit;
+  line-height: 1.2;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: inherit;
+}
+
+.wp-content-container h1 {
+  font-size: 2em;
+}
+
+.wp-content-container h2 {
+  font-size: 1.75em;
+}
+
+.wp-content-container h3 {
+  font-size: 1.5em;
+}
+
+.wp-content-container h4 {
+  font-size: 1.25em;
+}
+
+.wp-content-container h5 {
+  font-size: 1.1em;
+}
+
+.wp-content-container h6 {
+  font-size: 1em;
+}
+
+/* Style WordPress paragraphs */
+.wp-content-container p {
+  margin: 0 0 1em;
+  line-height: 1.6;
+}
+
+/* Style WordPress lists */
+.wp-content-container ul,
+.wp-content-container ol {
+  margin: 0 0 1em 1.5em;
+  padding: 0;
+}
+
+.wp-content-container li {
+  margin-bottom: 0.5em;
+}
+
+/* Style WordPress links */
+.wp-content-container a {
+  color: #0073aa;
+  text-decoration: underline;
+}
+
+.wp-content-container a:hover,
+.wp-content-container a:focus {
+  color: #00a0d2;
+  text-decoration: none;
+}
+
+/* Fix WordPress tables */
+.wp-content-container table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.wp-content-container th,
+.wp-content-container td {
+  border: 1px solid #ddd;
+  padding: 0.5em;
+  text-align: left;
+}
+
+/* Fix WordPress embeds */
+.wp-content-container .wp-embedded-content,
+.wp-content-container iframe,
+.wp-content-container embed,
+.wp-content-container object,
+.wp-content-container video {
+  max-width: 100%;
+  display: block;
+  margin: 1em auto;
+}
+
+/* Custom container for fetched WordPress API content */
+.wp-api-content {
+  position: relative;
+  width: 100%;
+}
