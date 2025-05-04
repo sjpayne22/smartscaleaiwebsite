@@ -1,139 +1,114 @@
-# SmartScale AI Website Deployment Guide
+# SmartScale AI Website Deployment Documentation
+
+This document serves as the index to all deployment-related documentation for the SmartScale AI website.
 
 ## Overview
 
-This document provides detailed instructions for deploying the SmartScale AI website. The site can be deployed to two primary environments:
+The SmartScale AI website is built with React using Vite and is designed to be deployed to both Vercel (for production) and GitHub Pages (for testing/development). It uses WordPress.com as a headless CMS for content management.
 
-1. **GitHub Pages**: Used for development, testing, and staging
-2. **Vercel**: Used for production at smartscaleai.ai
+## Deployment Guides
 
-Each deployment target requires specific configuration to ensure proper functionality.
+### Deployment Preparation
 
-## Prerequisites
+- [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Comprehensive checklist of items to verify before, during, and after deployment
 
-Before deployment, ensure you have:
+### Deployment Targets
 
-- Node.js installed (version 14 or later)
-- Access to the GitHub repository
-- Vercel account (for production deployment)
-- All code changes committed and pushed
+- [Vercel Deployment Guide](./DEPLOY_TO_VERCEL.md) - Instructions for deploying to Vercel
+- [Vercel Deployment with CSS Fixes](./DEPLOY_TO_VERCEL_WITH_FIXES.md) - Special guide for addressing CSS formatting issues on Vercel
+- [GitHub Pages Deployment Guide](./GITHUB_PAGES.md) - Instructions for deploying to GitHub Pages
 
-## Deployment Options
+### Integration Guides
 
-### GitHub Pages Deployment
+- [WordPress API Integration Checklist](./WORDPRESS_API_CHECKLIST.md) - Guide for setting up and testing WordPress API integration
+- [WebSocket Configuration Guide](./WEBSOCKET_CONFIGURATION.md) - Instructions for setting up and testing WebSockets
 
-GitHub Pages is used for development and testing. Follow these steps to deploy:
+## Deployment Scripts
 
-1. **Build the project for GitHub Pages**:
+### Build Scripts
 
-   ```bash
-   node build.js github
-   ```
-
-   This script will:
-   - Build the React application
-   - Fix asset paths to use relative references (`./assets/`)
-   - Add a proper base tag to the HTML
-   - Create a 404.html page that redirects to index.html
-
-2. **Deploy using the automated script**:
-
-   ```bash
-   node deploy-github.js
-   ```
-
-   This will build and deploy the site to GitHub Pages in one step.
-
-3. **Verify the deployment**:
-   - Check that the site is accessible at your GitHub Pages URL
-   - Test all features and navigation
-   - Verify WordPress API integration
-
-Refer to [GITHUB_PAGES.md](GITHUB_PAGES.md) for detailed GitHub Pages deployment information.
-
-### Vercel Deployment (Production)
-
-Vercel is used for the production site at smartscaleai.ai. Follow these steps to deploy:
-
-1. **Build the project for Vercel**:
-
-   ```bash
-   node vercel-build.js
-   ```
-
-   This script will:
-   - Build the React application
-   - Fix asset paths to use absolute references (`/assets/`)
-   - Add a proper base tag to the HTML
-   - Copy the Vercel configuration to the build directory
-
-2. **Deploy using the automated script**:
-
-   ```bash
-   node deploy-vercel.js
-   ```
-
-   This will build and deploy the site to Vercel in one step.
-
-3. **Verify the deployment**:
-   - Check that the site is accessible at the Vercel URL provided
-   - Test all features and navigation
-   - Verify WordPress API integration
-
-Refer to [DEPLOY_TO_VERCEL.md](DEPLOY_TO_VERCEL.md) for detailed Vercel deployment information.
-
-## Critical Deployment Files
-
-### Configuration Files
-
-- **vercel.json**: Contains configuration for Vercel deployment
-- **404.html**: Handles SPA routing for GitHub Pages
-- **index.html**: The main entry point for the application
+- `vercel-build-new.js` - Enhanced build script for Vercel deployment
+- `build.js` - General-purpose build script
+- `build.ps1`/`build.bat` - Windows build scripts
 
 ### Deployment Scripts
 
-- **build.js**: Builds the project for any deployment target
-- **build-vercel.js**: Special build script for Vercel
-- **deploy-github.js**: Automates GitHub Pages deployment
-- **deploy-vercel.js**: Automates Vercel deployment
-- **fix-asset-paths.js**: Fixes asset references based on deployment target
-- **fix-html-file.js**: Ensures HTML files have correct base tags and paths
+- `deploy-vercel.js` - Automated Vercel deployment script
+- `deploy-github.js` - Automated GitHub Pages deployment script
 
-## WordPress Integration
+### Path Fixing and Asset Scripts
 
-The website connects to WordPress.com as a headless CMS. Ensure the WordPress API is properly configured:
+- `fix-vercel-paths.js` - Fixes asset paths for Vercel deployment
+- `fix-css-paths.js` - Fixes CSS-specific formatting issues
+- `fix-asset-paths.js` - Generic asset path fixer
+- `create-test-build.js` - Creates a test build to verify path fixing
 
-1. CORS headers are set up
-2. Custom post types are available through the API
-3. Authentication is working correctly (if used)
+## Testing Tools
 
-Test the WordPress connection with the diagnostic tool:
+- `check-wordpress-connection-fixed.js` - Tests WordPress API connectivity
+- `test-websocket.html` - Simple page for testing WebSocket connections
 
-```bash
-node check-wordpress-connection.js
-```
+## Deployment Flow
 
-## Troubleshooting
+1. **Preparation**:
+   - Verify code changes are committed
+   - Run through the [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)
+   - Test WordPress API connection
 
-### Common Issues
+2. **Build**:
+   - For Vercel: Run `node vercel-build-new.js`
+   - For GitHub Pages: Run `node build.js github`
 
-1. **Asset loading failures**: Usually related to incorrect path references. Check for correct base tag and asset paths.
-2. **SPA routing issues**: If page refreshes result in 404 errors, ensure proper redirect configurations are in place.
-3. **API connectivity problems**: Verify CORS settings on the WordPress installation.
+3. **Deploy**:
+   - For Vercel: Run `node deploy-vercel.js`
+   - For GitHub Pages: Run `node deploy-github.js`
 
-### Log Files
+4. **Verify**:
+   - Open the deployed site
+   - Check for any console errors
+   - Test WordPress integration
+   - Verify all features are working
 
-Both GitHub Pages and Vercel provide deployment logs that can help diagnose issues:
+## Common Issues
 
-- Check GitHub Actions logs for GitHub Pages deployments
-- Check the Vercel dashboard for production deployment logs
+### CSS Not Loading
 
-## Deployment Checklist
+If CSS is not loading properly, check:
+- Content-Type headers are properly set
+- Asset paths are correct (absolute for Vercel, relative for GitHub Pages)
+- No MIME type warnings in the console
 
-Use the [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) document to ensure all deployment steps are completed correctly.
+Solutions:
+- Use the `fix-css-paths.js` script
+- Ensure `_headers` file is present in the build
+- Verify `vercel.json` has proper content type configurations
 
-## Additional Resources
+### WordPress API Connection Issues
 
-- [GitHub Pages Documentation](https://docs.github.com/en/pages)
-- [Vercel Documentation](https://vercel.com/docs)
-- [WordPress REST API Documentation](https://developer.wordpress.org/rest-api/)
+If WordPress API is not connecting, check:
+- CORS is properly configured
+- API endpoints are accessible
+- Authentication is working if required
+
+Solutions:
+- Run the WordPress API connection test
+- Check for CORS errors in the console
+- Verify API URL is correct
+
+### Deployment Failures
+
+If deployment fails, check:
+- Build process completes successfully
+- No 404 errors for assets
+- Correct environment variables are set
+
+Solutions:
+- Use the enhanced build scripts
+- Verify path fixing is working
+- Check deployment logs for specific errors
+
+## Contact
+
+For deployment assistance, contact:
+- Stanley Payne (stanley@smartscaleai.ai)
+- Technical Support (support@smartscaleai.ai)

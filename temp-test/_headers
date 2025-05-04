@@ -1,0 +1,9 @@
+# Force correct MIME types
+/assets/*.css
+  Content-Type: text/css
+/assets/*.js
+  Content-Type: application/javascript
+/assets/*.map
+  Content-Type: application/json
+/assets/*.json
+  Content-Type: application/json

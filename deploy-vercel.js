@@ -79,7 +79,7 @@ async function deploy() {
   
   // Step 3: Build for Vercel
   console.log('\nStep 3: Building for Vercel...');
-  if (!execCommand('node vercel-build.js')) {
+  if (!execCommand('node vercel-build-new.js')) {
     console.error('\n❌ Build failed');
     rl.close();
     return;

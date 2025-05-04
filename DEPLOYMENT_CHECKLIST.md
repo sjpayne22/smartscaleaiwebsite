@@ -1,87 +1,84 @@
-# Deployment Checklist for SmartScale AI Website
+# SmartScale AI Website Deployment Checklist
 
-Use this checklist to ensure successful deployment of the SmartScale AI website to either GitHub Pages or Vercel.
+Use this checklist to ensure a successful deployment of the SmartScale AI website to Vercel.
 
-## Pre-Deployment
+## Pre-Deployment Preparations
 
-- [ ] All code changes are committed and pushed to the repository
-- [ ] Website has been tested locally and all features are working
-- [ ] WordPress API connection has been tested and is working correctly
-- [ ] No console errors appear in the browser developer tools
-- [ ] Website is responsive on all tested device sizes
-- [ ] All images and assets are optimized for web
-- [ ] SEO meta tags are properly set in index.html
+- [ ] Ensure all code changes are committed to the repository
+- [ ] Run build locally to verify it completes successfully with `node vercel-build-new.js`
+- [ ] Check that all assets (images, fonts, etc.) are properly referenced
+- [ ] Verify all APIs are properly configured and accessible
+- [ ] Test WordPress API connection with `node check-wordpress-connection-fixed.js`
+- [ ] Check for any hardcoded URLs that may need to be updated
 
-## GitHub Pages Deployment
+## CSS and Asset Path Verification
 
-- [ ] Use the GitHub Pages build script:
-      ```bash
-      node build.js github
-      ```
-      or
-      ```bash
-      node deploy-github.js
-      ```
-- [ ] Verify that asset paths use relative references (`./assets/`)
-- [ ] Verify `<base href="./">` is present in the HTML
-- [ ] Custom domain is configured in GitHub repository settings (if applicable)
-- [ ] HTTPS is enforced in GitHub Pages settings
+- [ ] Run the test build script: `node create-test-build.js`
+- [ ] Verify that all asset paths in HTML are absolute (start with `/`)
+- [ ] Confirm CSS files have proper MIME types in _headers file
+- [ ] Check that all `url()` references in CSS are fixed to use absolute paths
+- [ ] Ensure the base tag is present: `<base href="/">`
 
-## Vercel Deployment
+## Deployment Process
 
-- [ ] Use the Vercel build script:
-      ```bash
-      node vercel-build.js
-      ```
-      or
-      ```bash
-      node deploy-vercel.js
-      ```
-- [ ] Verify that asset paths use absolute references (`/assets/`)
-- [ ] Verify `<base href="/">` is present in the HTML
-- [ ] The `vercel.json` configuration file is included in the build
-- [ ] Environment variables are configured in the Vercel dashboard (if applicable)
-- [ ] Custom domain is configured in the Vercel dashboard (if applicable)
+- [ ] Run the Vercel deployment script: `node deploy-vercel.js`
+- [ ] When prompted, confirm that you want to use the new build process
+- [ ] Wait for the build and deployment to complete
+- [ ] Check the deployment URL provided by Vercel
 
-## Post-Deployment
+## Post-Deployment Verification
 
-- [ ] Test all website navigation and features on the live site
-- [ ] Verify WordPress API integration is working on the deployed site
-- [ ] Test form submissions on the live site
-- [ ] Verify all links are working correctly
-- [ ] Check that analytics is tracking properly (if applicable)
-- [ ] Test chatbot functionality on the live site
-- [ ] Verify the site is secure (HTTPS only)
-- [ ] Test website performance using tools like Lighthouse
-- [ ] Verify the site has proper cache headers for assets
+- [ ] Open the deployed site in multiple browsers
+- [ ] Verify that CSS is loading correctly (no MIME type errors)
+- [ ] Check that all images and assets load properly
+- [ ] Test responsive layouts on different device sizes
+- [ ] Ensure API connections work in the deployed environment
+- [ ] Test the WordPress integration
+- [ ] Verify WebSocket functionality if applicable
 
-## WordPress Configuration
+## Common Issues and Solutions
 
-- [ ] WordPress REST API endpoints are accessible from the deployed domain
-- [ ] CORS headers are properly configured on the WordPress server
-- [ ] Custom post types and fields are accessible via the API
-- [ ] JWT authentication is working correctly (if applicable)
-- [ ] WordPress permalinks are set to "Post name" (/sample-post/)
+### CSS Not Loading
 
-## DNS & Domain Configuration
+**Problem**: CSS files are not being applied to the page
 
-- [ ] DNS records are properly configured for the custom domain
-- [ ] CNAME records are set up correctly for GitHub Pages or Vercel
-- [ ] A records point to the correct IP addresses
-- [ ] Domain has proper SSL/TLS certificate
-- [ ] www subdomain redirects to the main domain (or vice versa)
+**Solutions**:
+- Check the network tab in browser dev tools for 404 errors
+- Verify MIME types are correct (`text/css` for CSS files)
+- Ensure paths are absolute in the deployed environment
+- Check for CORS issues if loading from external domains
 
-## Rollback Plan
+### Missing Assets
 
-In case of deployment issues:
+**Problem**: Images or other assets not displaying
 
-1. For GitHub Pages: Revert to the previous successful commit and redeploy
-2. For Vercel: Use the Vercel dashboard to roll back to a previous deployment
-3. For critical issues: Temporarily point the domain to a maintenance page
+**Solutions**:
+- Check for 404 errors in the console
+- Verify paths are corrected from relative to absolute
+- Ensure assets are included in the build directory
 
-## Contact Information
+### API Connection Issues
 
-If you encounter deployment issues, contact:
+**Problem**: Cannot connect to WordPress or other APIs
 
-- Stanley Payne (stanley@smartscaleai.ai)
-- Technical Support (support@smartscaleai.ai)
+**Solutions**:
+- Verify API endpoints are correct
+- Check CORS headers are properly configured
+- Test API connectivity with the check script
+- Verify API keys and authentication are working
+
+## Production Domain Configuration
+
+- [ ] Set up custom domain in Vercel dashboard
+- [ ] Configure DNS settings at domain registrar
+- [ ] Verify SSL certificate is properly provisioned
+- [ ] Test the site on the production domain
+- [ ] Update WordPress API connection settings if needed
+
+## Final Verification
+
+- [ ] Complete a full site functional test on production domain
+- [ ] Verify analytics and tracking are working
+- [ ] Check all forms submit properly
+- [ ] Test site performance and loading speed
+- [ ] Ensure all SEO elements are correctly implemented

@@ -1,0 +1,12 @@
+/* Test styles with relative URLs */
+body {
+  background: url(/images/bg.jpg);
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.logo {
+  background: url(/logo-small.png) no-repeat;
+  width: 100px;
+  height: 100px;
+}

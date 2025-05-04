@@ -1,136 +1,146 @@
-# GitHub Pages Deployment Guide
+# Deploying SmartScale AI Website to GitHub Pages
 
-## Overview
-
-GitHub Pages serves as our development and testing environment for the SmartScale AI website. This document outlines the specific steps and considerations for deploying to GitHub Pages.
+This guide walks through the process of deploying the SmartScale AI website to GitHub Pages, which is used for development and testing purposes.
 
 ## Prerequisites
 
-Before deploying to GitHub Pages, ensure:
+- Git installed and configured
+- Access to the GitHub repository (github.com/sjpayne22/smartscaaleai-website)
+- Node.js 14+ installed
 
-- Your code repository has GitHub Pages enabled in repository settings
-- You have appropriate permissions to the repository
-- All code changes are committed and pushed
+## Step-by-Step Deployment Guide
 
-## GitHub Pages Specific Configuration
+### 1. Prepare Your Environment
 
-Unlike Vercel, GitHub Pages serves content from a repository subdirectory or branch. Our repository is configured to deploy from:
+Ensure you have Git properly configured with your credentials:
 
-- Branch: `gh-pages`
-- Folder: `/` (root of the branch)
+```bash
+# Configure Git (if not already set up)
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
 
-## Deployment Process
+### 2. Use the Automated Deployment Script
 
-### Option 1: Using the Automated Script
-
-The simplest way to deploy is using our automated script:
+We've created a fully automated deployment script that handles the entire process for you:
 
 ```bash
 node deploy-github.js
 ```
 
-This script will:
-1. Build the project specifically for GitHub Pages
-2. Fix asset paths to use relative references (starting with `./`)
-3. Create a `gh-pages` branch if it doesn't exist
-4. Push the built files to the `gh-pages` branch
+The script will:
 
-### Option 2: Manual Deployment
+1. Check if Git is installed and configured
+2. Build the project using the GitHub Pages configuration
+3. Fix asset paths for GitHub Pages (using relative paths)
+4. Commit and push the build to the gh-pages branch
 
-If you prefer to deploy manually:
+### 3. Manual Deployment (Alternative)
 
-1. Build the project for GitHub Pages:
+If you prefer to go through each step manually:
 
-   ```bash
-   node build.js github
-   ```
+```bash
+# Build the project for GitHub Pages
+node build.js github
 
-2. Create and switch to the gh-pages branch:
+# Create or switch to the gh-pages branch
+git checkout -b gh-pages
 
-   ```bash
-   git checkout -b gh-pages
-   ```
+# Add all files from the build directory
+git add -f build
 
-3. Copy the build files to this branch:
+# Commit the changes
+git commit -m "Update GitHub Pages deployment"
 
-   ```bash
-   cp -r build/* .
-   ```
+# Push to the gh-pages branch
+git push origin gh-pages -f
 
-4. Commit and push the changes:
+# Switch back to your working branch
+git checkout main
+```
 
-   ```bash
-   git add .
-   git commit -m "Deploy to GitHub Pages"
-   git push origin gh-pages
-   ```
+## Key Configurations for GitHub Pages
 
-## Asset Path Configuration
+GitHub Pages deployment uses several specific configurations:
 
-Unlike Vercel, GitHub Pages typically serves content from a project subdirectory, which requires relative paths for assets.
+1. **Relative Paths**: Uses relative paths (`./assets/`) instead of absolute paths
+2. **Base Tag**: Sets `<base href="./">` for proper path resolution
+3. **404 Page**: Includes a custom 404.html page for proper SPA routing
+4. **Path Fixer**: Runs `fix-asset-paths.js github` to ensure paths are correct
 
-Our build process automatically:
+## GitHub Pages URL Structure
 
-1. Adds `<base href="./">` to the HTML documents
-2. Converts asset references from absolute (`/assets/`) to relative (`./assets/`)
-3. Creates a 404.html file that redirects to index.html for SPA routing
+Once deployed, your site will be available at:
 
-## SPA Routing on GitHub Pages
-
-GitHub Pages doesn't natively support SPA routing, so we use a 404 page redirect technique:
-
-1. When a direct URL is accessed (e.g., `/blog/article-1`)
-2. GitHub Pages initially returns a 404 error
-3. Our custom 404.html page redirects to index.html with the original path stored in the URL hash
-4. The React router then processes this hash and renders the correct page
+```
+https://sjpayne22.github.io/smartscaaleai-website/
+```
 
 ## Testing Your Deployment
 
-After deployment, test your site at your GitHub Pages URL:
+After deployment, verify that:
 
-```
-https://username.github.io/repo-name/
-```
+1. The site loads correctly at the GitHub Pages URL
+2. CSS is applied properly and images load
+3. All features work as expected
+4. Navigation works correctly
 
-Ensure all the following work correctly:
+## Common Issues with GitHub Pages
 
-1. Initial page load
-2. Navigation between routes
-3. Direct access to deep links (e.g., `/blog/article-1`)
-4. WordPress API integration
-5. Assets loading properly
+### Asset Loading Issues
 
-## Using a Custom Domain with GitHub Pages
+**Problem**: Assets (CSS, images) fail to load
 
-If you want to use a custom domain for your GitHub Pages deployment:
-
-1. Add your custom domain in the repository settings under "Pages"
-2. Create a CNAME file in the root of your `gh-pages` branch containing your domain name
-3. Configure your domain's DNS settings with appropriate CNAME or A records
-
-For detailed instructions, see [GitHub's documentation on custom domains](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site).
-
-## Troubleshooting Common Issues
-
-### Blank Page After Deployment
-
-Typically caused by incorrect asset paths. Verify:
-- The `<base href="./">` tag is present in your HTML
-- Asset references use `./assets/` instead of `/assets/`
+**Solution**:
+- Make sure all paths are relative (starting with `./`)
+- Check that the base tag is present and set to `<base href="./">`
+- Verify no absolute paths are used in CSS or HTML
 
 ### 404 Errors on Page Refresh
 
-Verify that:
-- The 404.html file is present in the root of your `gh-pages` branch
-- The redirect code in 404.html is working correctly
+**Problem**: Page refreshes result in a 404 error
 
-### API Requests Failing
+**Solution**:
+- This is a common issue with SPAs on GitHub Pages
+- Use the custom 404.html page and redirect script included in the build
+- Consider using hash-based routing for GitHub Pages
 
-Check for:
-- CORS configuration on your WordPress server
-- API endpoints using HTTPS (GitHub Pages requires HTTPS connections)
+### CORS Issues with WordPress API
 
-## Resources
+**Problem**: Cannot connect to WordPress API from GitHub Pages
 
-- [GitHub Pages Documentation](https://docs.github.com/en/pages)
-- [SPA Routing for GitHub Pages](https://github.com/rafgraph/spa-github-pages)
+**Solution**:
+- Verify WordPress CORS settings allow requests from GitHub Pages domain
+- Check browser console for specific CORS errors
+- Consider using a CORS proxy for development/testing
+
+## GitHub Pages vs. Production Deployment
+
+It's important to understand the differences between GitHub Pages deployment and the production Vercel deployment:
+
+1. **Path Handling**: GitHub Pages uses relative paths, Vercel uses absolute paths
+2. **Base URL**: Different base URLs affect API endpoint configuration
+3. **CORS Settings**: May need different CORS configurations
+
+When testing on GitHub Pages, be aware of these differences and account for them in your code.
+
+## Alternative GitHub Deployments
+
+If you need more features than GitHub Pages provides:
+
+1. **GitHub Actions**: Set up a custom workflow for more control
+2. **Custom Domain**: Configure a custom domain for your GitHub Pages site
+
+## Local Preview Before Deployment
+
+To verify your build will work on GitHub Pages without deploying:
+
+```bash
+# Create a GitHub Pages build
+node build.js github
+
+# Serve it locally
+npx serve build
+```
+
+This simulates how the site will behave when deployed to GitHub Pages.
